@@ -1,0 +1,231 @@
+{
+  "rules": [
+    {
+      "id": "rule_001",
+      "signal": "Plans to raise venture capital",
+      "question_id": "funding_plans",
+      "answer_value": "venture_capital",
+      "points_to": "C-Corp",
+      "preferred_state": "Delaware",
+      "reason": "VCs almost universally require Delaware C-Corp. Preferred stock, drag-along rights, and standard VC mechanics require C-Corp structure.",
+      "weight": 10
+    },
+    {
+      "id": "rule_002",
+      "signal": "Solo founder, bootstrapped, no plans to raise",
+      "question_id": "funding_plans",
+      "answer_value": "bootstrapped",
+      "points_to": "LLC",
+      "preferred_state": "home_state",
+      "reason": "LLC provides liability protection with pass-through taxation and minimal formality for solo founders not seeking VC.",
+      "weight": 7
+    },
+    {
+      "id": "rule_003",
+      "signal": "Mission-driven, wants to signal social purpose",
+      "question_id": "mission_driven",
+      "answer_value": "yes",
+      "points_to": "B-Corp/PBC",
+      "preferred_state": "Delaware",
+      "reason": "Delaware Public Benefit Corporation (PBC) provides legal protection for mission-driven decisions and is compatible with VC investment.",
+      "weight": 8
+    },
+    {
+      "id": "rule_004",
+      "signal": "Non-US citizen or non-permanent resident co-founder",
+      "question_id": "non_us_cofounders",
+      "answer_value": "yes",
+      "points_to": "C-Corp",
+      "preferred_state": "Delaware",
+      "reason": "S-Corps cannot have non-US citizen/non-permanent-resident shareholders (IRC Section 1361). C-Corp is required.",
+      "disqualifies": "S-Corp",
+      "weight": 10
+    },
+    {
+      "id": "rule_005",
+      "signal": "Wants pass-through taxation, all US citizen owners",
+      "question_id": "tax_preference",
+      "answer_value": "pass_through",
+      "points_to": "LLC",
+      "preferred_state": "home_state",
+      "reason": "LLC provides pass-through taxation with flexibility. S-Corp also qualifies but has strict eligibility requirements.",
+      "weight": 6
+    },
+    {
+      "id": "rule_006",
+      "signal": "Anticipates more than 100 shareholders",
+      "question_id": "shareholder_count",
+      "answer_value": "over_100",
+      "points_to": "C-Corp",
+      "preferred_state": "Delaware",
+      "reason": "S-Corps are limited to 100 shareholders (IRC Section 1361). C-Corp has no shareholder limit.",
+      "disqualifies": "S-Corp",
+      "weight": 9
+    },
+    {
+      "id": "rule_007",
+      "signal": "Home state operations only, no VC plans",
+      "question_id": "operating_scope",
+      "answer_value": "home_state_only",
+      "points_to": "LLC",
+      "preferred_state": "home_state",
+      "reason": "Registering in home state avoids the cost and complexity of foreign qualification. Home state LLC is simpler and cheaper for purely local operations.",
+      "weight": 5
+    },
+    {
+      "id": "rule_008",
+      "signal": "Wants privacy and low annual fees",
+      "question_id": "priority",
+      "answer_value": "privacy_low_fees",
+      "points_to": "LLC",
+      "preferred_state": "Wyoming",
+      "reason": "Wyoming offers strong LLC privacy protections, no state income tax, and low annual fees. Good alternative for bootstrapped founders who don't need Delaware prestige.",
+      "weight": 4
+    },
+    {
+      "id": "rule_009",
+      "signal": "Has non-US citizen or non-permanent resident co-founder",
+      "question_id": "non_us_cofounders",
+      "answer_value": "yes",
+      "points_to": "C-Corp",
+      "preferred_state": "Delaware",
+      "reason": "S-Corps cannot have non-US shareholders (IRC Section 1361). C-Corp is the only VC-compatible option for teams with international founders.",
+      "source": "IRC Section 1361(b)(1)(C)",
+      "weight": 10
+    },
+    {
+      "id": "rule_010",
+      "signal": "Plans to issue stock options to employees or contractors",
+      "question_id": "employee_equity",
+      "answer_value": "yes_options",
+      "points_to": "C-Corp",
+      "preferred_state": "Delaware",
+      "reason": "Only C-Corps can issue ISOs (Incentive Stock Options) with favorable tax treatment. LLCs use complex profit interest units instead. A 409A valuation is required before any option grants.",
+      "source": "IRC Section 422",
+      "weight": 9
+    },
+    {
+      "id": "rule_011",
+      "signal": "Plans to seek investment from institutional VCs",
+      "question_id": "investor_type",
+      "answer_value": "institutional_vc",
+      "points_to": "C-Corp",
+      "preferred_state": "Delaware",
+      "reason": "Institutional VCs almost universally require Delaware C-Corp structure. VC funds structured as partnerships typically cannot hold LLC interests due to UBTI issues.",
+      "source": "Standard VC term sheet practice",
+      "weight": 10
+    }
+  ],
+  "disqualifiers": [
+    {
+      "id": "disq_001",
+      "entity": "S-Corp",
+      "condition": "Non-US citizen or non-permanent resident shareholder",
+      "reason": "IRC Section 1361(b)(1)(C) prohibits S-Corps from having non-resident alien shareholders.",
+      "source": "IRC Section 1361(b)(1)(C)"
+    },
+    {
+      "id": "disq_002",
+      "entity": "S-Corp",
+      "condition": "More than 100 shareholders",
+      "reason": "S-Corps are limited to 100 shareholders under IRC Section 1361.",
+      "source": "IRC Section 1361(b)(1)(A)"
+    },
+    {
+      "id": "disq_003",
+      "entity": "S-Corp",
+      "condition": "Multiple classes of stock",
+      "reason": "S-Corps can only have one class of stock. Preferred stock (required by VCs) disqualifies S-Corp status.",
+      "source": "IRC Section 1361(b)(1)(D)"
+    },
+    {
+      "id": "disq_004",
+      "entity": "S-Corp",
+      "condition": "Corporate shareholder (another corporation or LLC as investor)",
+      "reason": "S-Corps cannot be owned by corporations or partnerships — only individuals, certain trusts, and estates.",
+      "source": "IRC Section 1361(b)(1)(B)"
+    },
+    {
+      "id": "disq_005",
+      "entity": "LLP",
+      "condition": "Operating in California as a non-licensed-professional business",
+      "reason": "California LLPs are only available to licensed professionals (attorneys, CPAs, architects). General startups cannot form LLPs in California.",
+      "source": "CA Corporations Code Section 16101"
+    },
+    {
+      "id": "disq_006",
+      "entity": "S-Corp",
+      "condition": "S-Corp election (Form 2553) not filed within 75 days of incorporation",
+      "reason": "The entity is treated as a C-Corp for that entire tax year. Pass-through status is lost permanently for that year.",
+      "source": "IRC Section 1362(b)"
+    },
+    {
+      "id": "disq_007",
+      "entity": "S-Corp",
+      "condition": "Operating in California without also filing CA Form 3560",
+      "reason": "California treats the entity as a C-Corp without a separate state S-Corp election. The federal Form 2553 is not sufficient.",
+      "source": "CA Revenue and Taxation Code Section 23800.5"
+    },
+    {
+      "id": "disq_008",
+      "entity": "General Partnership",
+      "condition": "Any business with meaningful liability exposure, co-founders, employees, or customers",
+      "reason": "All partners bear UNLIMITED personal liability for ALL debts and obligations, including actions of other partners. Convert to LLC or Corp immediately.",
+      "source": "CA Corporations Code Section 16306"
+    }
+  ],
+  "critical_post_formation_steps": {
+    "all_entities": [
+      {
+        "step": "Obtain EIN",
+        "deadline": "Immediate",
+        "source": "IRS Form SS-4 (free, instant online)",
+        "consequence_if_missed": "Cannot open bank account or hire employees"
+      },
+      {
+        "step": "File BOI report with FinCEN",
+        "deadline": "Within 90 days of formation",
+        "source": "FinCEN (fincen.gov)",
+        "consequence_if_missed": "$500/day civil penalty; up to $10,000 + prison for willful violation"
+      }
+    ],
+    "c_corp_and_s_corp": [
+      {
+        "step": "File Statement of Information (SI-550)",
+        "deadline": "Within 90 days (CA)",
+        "fee": "$25",
+        "consequence_if_missed": "$250 late fee + risk of administrative suspension"
+      },
+      {
+        "step": "83(b) Election for founders with vesting",
+        "deadline": "Within 30 days of stock grant — NO EXCEPTIONS",
+        "source": "IRS",
+        "consequence_if_missed": "Ordinary income tax on full vested value as it vests — potentially hundreds of thousands of dollars"
+      },
+      {
+        "step": "IP Assignment / PIIA",
+        "deadline": "Before or at incorporation",
+        "consequence_if_missed": "Company may not own the IP it was built on"
+      }
+    ],
+    "s_corp_only": [
+      {
+        "step": "File Form 2553 (federal S-Corp election)",
+        "deadline": "Within 75 days of incorporation — ALL shareholders must sign",
+        "consequence_if_missed": "Treated as C-Corp; pass-through status permanently lost for that year"
+      },
+      {
+        "step": "File CA Form 3560 (California S-Corp election)",
+        "deadline": "Same timeframe as Form 2553",
+        "consequence_if_missed": "California treats entity as C-Corp without this separate state election"
+      }
+    ],
+    "c_corp_only": [
+      {
+        "step": "409A Valuation before any option grants",
+        "deadline": "Before first option grant; refresh at each round or annually",
+        "consequence_if_missed": "Option holders face immediate ordinary income tax + 20% excise tax under IRC Section 409A"
+      }
+    ]
+  }
+}

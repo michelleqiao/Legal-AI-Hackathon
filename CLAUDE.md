@@ -106,6 +106,46 @@ Each phase expands the platform into a new legal domain. When building any featu
 | v3 | Contracts Layer | Employment contracts, license agreements, AI-assisted review |
 | v4 | International Expansion | Market entry advisory, multi-jurisdiction compliance |
 
+## Legal Guardrails (From US Incorporation Legal Guide)
+
+### Critical Deadlines — Always Surface These
+- **83(b) Election**: Must be filed with IRS within **30 days** of stock grant. No extensions. No exceptions. No grace period. Missing it results in ordinary income tax on full vested value as it vests — potentially hundreds of thousands of dollars. Always flag this prominently.
+- **BOI Report (FinCEN)**: Must be filed within **90 days** of formation. $500/day civil penalty; up to $10,000 + prison for willful violation.
+- **S-Corp Election (Form 2553)**: Must be filed within **75 days** of incorporation. Treated as C-Corp and pass-through status is permanently lost for that year if missed.
+- **CA Statement of Information**: Due within 90 days of incorporation (Corps: SI-550, $25; LLCs: LLC-12, $20). $250 late penalty + risk of administrative suspension.
+- **409A Valuation**: Required before any stock option grants. Option holders face immediate ordinary income tax + 20% excise tax if options are granted below FMV without a valid 409A.
+
+### Entity-Specific Hard Disqualifiers
+- **S-Corp is impossible if**: Non-US citizen/permanent resident shareholder, more than 100 shareholders, multiple classes of stock, corporate shareholder, missing the 75-day Form 2553 deadline.
+- **S-Corp also requires**: CA Form 3560 (California S-Corp election) filed separately — the federal Form 2553 alone is not enough in California.
+- **General Partnership**: NEVER recommend without flagging that all partners have unlimited personal liability including for other partners' actions. Always recommend LLC or Corp instead.
+- **LLP in California**: Only available to licensed professionals (attorneys, CPAs, architects). Not available to general startups.
+
+### California-Specific Warnings — Always Include When User is in CA
+- Any entity operating in California pays **$800/year minimum franchise tax** — even with zero revenue — except LLCs formed after Jan 1, 2021 (waived first year).
+- LLCs also pay a gross receipts fee on top: $900 (receipts $250k–$499k), $2,500 ($500k–$999k), $6,000 ($1M–$4.99M), $11,790 ($5M+).
+- Delaware corps operating in California must **also register as a foreign corporation** (one-time filing + $800/yr min franchise tax). This is not optional.
+- **AB5 (California)**: Independent contractors must pass the ABC test. Misclassification risk is high in CA — always flag when user mentions contractors.
+- **Offer letters in California**: Must contain at-will employment language. Cannot promise continued employment.
+
+### Sector-Specific Flags — Raise These When Relevant
+- **Fintech/Payments**: Money transmitter license required; AML/KYC program; Bank Secrecy Act compliance.
+- **Healthcare/MedTech**: HIPAA BAAs required; FDA clearance may be needed.
+- **SaaS/Data/AI**: CCPA/CPRA compliance required if handling CA residents' data.
+- **Crypto/Web3**: Howey Test analysis required before any token issuance. Consult securities counsel.
+- **Cannabis**: No federal banking; state license required before any operations.
+
+### Post-Formation Checklist — Always Mention These Steps
+For C-Corps: EIN (free, instant) → BOI report (90 days) → Bylaws → Org meeting → Share issuance → RSPAs → 83(b) elections → IP/PIIA agreements → SI-550 → Equity plan + 409A if issuing options.
+For LLCs: Articles of Organization → Operating Agreement → EIN → Statement of Information (90 days) → BOI report → Business bank account.
+
+### What Legal Foundry Must NEVER Do
+- Never tell a user their 83(b) deadline is not urgent or that they can file it later.
+- Never recommend a General Partnership without a strong liability warning.
+- Never suggest an S-Corp without checking all 4 eligibility requirements.
+- Never help with token/crypto issuance without flagging securities law risk.
+- Never give specific tax advice — always refer to a CPA for tax-specific questions.
+
 ## Open Questions (Unresolved)
 
 1. **Registered agent partner** — evaluating Northwest, Registered Agents Inc.
