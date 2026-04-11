@@ -6,16 +6,33 @@ We are building the **one-stop legal operating system for startups and SMBs**. T
 
 This is a platform play, not a single product. Every feature we build should ladder up to making StartStack the default legal infrastructure layer for startups from day zero through global scale.
 
-## Product 1 — What We're Building Now
+## The 5 Modules — What We're Building
 
-StartStack's first product is an AI-powered incorporation tool. It helps startup founders incorporate their company correctly and stay compliant — without needing a lawyer for every step.
+StartStack is a single web app with 5 legal modules. Each module follows the same pattern: ask the user questions → AI generates output (recommendation, draft document, or guidance) → user can chat to refine.
 
-The core flow:
-1. Founder answers a guided wizard (~8–10 questions)
-2. AI recommends the right entity type (C-Corp, LLC, S-Corp, B-Corp/PBC) and state
-3. Founder can ask follow-up questions via AI chat
-4. StartStack generates and files the incorporation documents on their behalf
-5. Post-incorporation: compliance dashboard, cap table, 83(b), annual reports
+### Module 1: Incorporation
+1. Guided wizard (~8–10 questions)
+2. AI recommends entity type (C-Corp, LLC, S-Corp, B-Corp/PBC) + state
+3. Plain-English explanation + chat for follow-ups
+4. Generates and files incorporation documents
+
+### Module 2: Service & Employment Agreements
+1. User selects agreement type (service or employment)
+2. AI asks targeted questions (parties, scope, compensation, IP ownership, termination)
+3. AI drafts the full agreement in plain English
+4. User can chat to refine specific clauses
+
+### Module 3: Patents & IP Protection
+1. User describes their invention or IP
+2. AI guides them through what's protectable (patent, trademark, copyright, trade secret)
+3. Step-by-step guidance: prior art search, provisional patent, next steps
+4. Plain-English throughout — no patent attorney jargon
+
+### Module 4: Fundraising
+1. User inputs round details (stage, amount, valuation, investor type)
+2. AI generates a term sheet or SAFE/convertible note summary
+3. AI explains every clause and its implications for dilution and control
+4. Chat to explore scenarios ("what if the valuation cap is lower?")
 
 ## Target User
 
@@ -72,11 +89,11 @@ State logic:
 
 ## What to Avoid
 
-- Legal advice — the tool explains, never advises
+- Legal advice — the tool explains, never advises. Always recommend a lawyer for final decisions.
 - Jargon in any user-facing output — if a 20-year-old without a law degree can't understand it, rewrite it
-- Feature creep in v1 — focus on wizard → recommendation → filing before expanding
 - International incorporations (out of scope until v4)
-- Building edge cases before the core flow works
+- Building edge cases before the core flow of each module works
+- Overly long outputs — keep summaries tight, let users ask for more via chat
 
 ## Platform Roadmap Context
 
