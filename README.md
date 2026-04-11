@@ -1,25 +1,37 @@
 # StartStack
 
-**From "what do I even form?" to incorporated — in minutes.**
+> **Building the one-stop legal operating system for startups and SMBs — from incorporation to contracts, compliance, and global expansion.**
 
-StartStack helps startup founders choose the right legal structure, file in the right state, and stay compliant — without needing a lawyer for every step.
+Startups and small businesses shouldn't need a $500/hr lawyer for every legal decision they face. StartStack is an AI-powered legal platform that handles the full lifecycle of a company's legal needs — starting with the very first decision every founder has to make: how to incorporate.
 
 ---
 
-## The Problem
+## Company Vision
 
-Incorporating a startup is one of the first high-stakes decisions a founder makes, yet the process is opaque, expensive, and fragmented:
+Legal infrastructure for businesses is broken. It's expensive, inaccessible, and built for big companies with in-house counsel. StartStack is building the legal OS for the other 99% — solo founders, co-founder teams, and small businesses who need real legal help without the billable hours.
+
+We're starting with incorporation and expanding into every legal need a growing company has:
+- **Incorporation** → the right structure, filed correctly, from day one
+- **Compliance** → stay legal as you grow, automatically
+- **Contracts** → employment, licensing, NDAs, all in one place
+- **International** → expand globally with confidence
+
+---
+
+## Product 1 — StartStack Incorporation
+
+**From "what do I even form?" to incorporated — in minutes.**
+
+Existing tools (Stripe Atlas, Clerky, Doola) assume you've already decided what to form. StartStack helps you make that decision — then handles everything after.
+
+### The Problem
 
 - Founders don't know whether to form an LLC, C-Corp, or S-Corp
 - Choosing the wrong state has long-term consequences
 - Document prep is error-prone when done manually
 - Post-incorporation compliance (annual reports, 83(b) elections, cap tables) is consistently neglected
 
-Existing tools (Stripe Atlas, Clerky, Doola) assume you've already decided what to form. StartStack helps you make that decision — then handles everything after.
-
----
-
-## What StartStack Does
+### What StartStack Does
 
 1. **Guided Wizard** — ~8–10 questions about your business, team, and funding plans
 2. **AI Recommendation** — plain-English explanation of the right entity type and state
@@ -29,7 +41,7 @@ Existing tools (Stripe Atlas, Clerky, Doola) assume you've already decided what 
 
 ---
 
-## Supported Entity Types (v1)
+### Supported Entity Types (v1)
 
 | Entity | Best For |
 |---|---|
@@ -40,7 +52,7 @@ Existing tools (Stripe Atlas, Clerky, Doola) assume you've already decided what 
 
 ---
 
-## Business Model
+### Business Model
 
 | Tier | Price | What's Included |
 |---|---|---|
@@ -50,16 +62,16 @@ Existing tools (Stripe Atlas, Clerky, Doola) assume you've already decided what 
 
 ---
 
-## Product Roadmap
+## Platform Roadmap
 
-| Phase | Timeline | Focus |
-|---|---|---|
-| v1 — Incorporation Core | Months 0–6 | Wizard, AI chat, end-to-end filing |
-| v2 — Compliance Suite | Months 6–12 | 83(b), cap table, annual reports, document vault |
-| v3 — Contracts Layer | Months 12–18 | Employment contracts, license agreements, AI-assisted review |
-| v4 — International | Months 18–30 | Market entry advisory, multi-jurisdiction compliance |
+| Phase | Product | Timeline | Focus |
+|---|---|---|---|
+| v1 | Incorporation Core | Months 0–6 | Wizard, AI chat, end-to-end filing |
+| v2 | Compliance Suite | Months 6–12 | 83(b), cap table, annual reports, document vault |
+| v3 | Contracts Layer | Months 12–18 | Employment contracts, license agreements, AI-assisted review |
+| v4 | International Expansion | Months 18–30 | Market entry advisory, multi-jurisdiction compliance |
 
-**Long-term vision:** StartStack becomes the default legal infrastructure layer for startups — from day zero incorporation through global expansion.
+**Long-term vision:** StartStack becomes the default legal infrastructure layer for startups and SMBs — from day zero incorporation through global expansion — replacing the need for a general counsel until a company is large enough to hire one.
 
 ---
 

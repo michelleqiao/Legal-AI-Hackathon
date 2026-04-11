@@ -1,8 +1,14 @@
 # StartStack — Project Context for Claude
 
-## What We're Building
+## Company Vision
 
-StartStack is a web app that helps startup founders incorporate their company correctly and stay compliant — without needing a lawyer for every step.
+We are building the **one-stop legal operating system for startups and SMBs**. The goal is to replace the need for expensive lawyers across every routine legal need a growing company has — incorporation, compliance, contracts, and international expansion.
+
+This is a platform play, not a single product. Every feature we build should ladder up to making StartStack the default legal infrastructure layer for startups from day zero through global scale.
+
+## Product 1 — What We're Building Now
+
+StartStack's first product is an AI-powered incorporation tool. It helps startup founders incorporate their company correctly and stay compliant — without needing a lawyer for every step.
 
 The core flow:
 1. Founder answers a guided wizard (~8–10 questions)
@@ -72,14 +78,16 @@ State logic:
 - International incorporations (out of scope until v4)
 - Building edge cases before the core flow works
 
-## Roadmap Context
+## Platform Roadmap Context
 
-| Phase | What's coming |
-|---|---|
-| v1 | Wizard, AI chat, end-to-end filing |
-| v2 | 83(b), cap table, annual reports, document vault |
-| v3 | Employment contracts, license agreements, AI-assisted review |
-| v4 | International market entry advisory, multi-jurisdiction compliance |
+Each phase expands the platform into a new legal domain. When building any feature, keep the broader platform in mind — avoid decisions that would make it harder to expand into later phases.
+
+| Phase | Product | What's coming |
+|---|---|---|
+| v1 | Incorporation Core | Wizard, AI chat, end-to-end filing |
+| v2 | Compliance Suite | 83(b), cap table, annual reports, document vault |
+| v3 | Contracts Layer | Employment contracts, license agreements, AI-assisted review |
+| v4 | International Expansion | Market entry advisory, multi-jurisdiction compliance |
 
 ## Open Questions (Unresolved)
 
