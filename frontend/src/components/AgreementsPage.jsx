@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
-import { draftAgreement } from '../api.js';
+import { draftAgreement, exportToPdf } from '../api.js';
 import ChatBox from './ChatBox.jsx';
+import DocumentEditor from './DocumentEditor.jsx';
 
-const SERVICE_FIELDS = [
-  { id: 'client_name', label: 'Client name', placeholder: 'e.g. Acme Corp', type: 'text' },
-  { id: 'provider_name', label: 'Service provider name', placeholder: 'e.g. Jane Smith / Your LLC', type: 'text' },
+// Base service fields — labels may be adjusted based on perspective
+const SERVICE_FIELDS_BASE = [
+  { id: 'client_name', label: 'Client name', labelProvider: "Client's name", placeholder: 'e.g. Acme Corp', type: 'text' },
+  { id: 'provider_name', label: 'Service provider name', labelProvider: 'Your name (as provider)', placeholder: 'e.g. Jane Smith / Your LLC', type: 'text' },
   { id: 'scope_of_work', label: 'Scope of work', placeholder: 'Describe the services to be provided...', type: 'textarea' },
   { id: 'payment_terms', label: 'Payment terms', placeholder: 'e.g. $5,000 due upon completion / $2,500 upfront + $2,500 on delivery', type: 'text' },
   { id: 'timeline', label: 'Project timeline', placeholder: 'e.g. 6 weeks starting January 15', type: 'text' },
@@ -144,6 +146,17 @@ const commonStyles = {
     background: '#C7D2FE',
     cursor: 'not-allowed',
   },
+  pdfButton: {
+    padding: '10px 20px',
+    background: '#ffffff',
+    border: '2px solid #4F46E5',
+    borderRadius: '8px',
+    fontSize: '14px',
+    fontWeight: '600',
+    color: '#4F46E5',
+    cursor: 'pointer',
+    fontFamily: 'inherit',
+  },
   loadingState: {
     textAlign: 'center',
     padding: '60px 0',
@@ -160,20 +173,6 @@ const commonStyles = {
   loadingText: {
     color: '#64748B',
     fontSize: '16px',
-  },
-  draftBox: {
-    background: '#F8FAFC',
-    border: '1px solid #E2E8F0',
-    borderRadius: '12px',
-    padding: '28px',
-    maxHeight: '520px',
-    overflowY: 'auto',
-    whiteSpace: 'pre-wrap',
-    fontSize: '13.5px',
-    lineHeight: '1.75',
-    color: '#334155',
-    fontFamily: '"SF Mono", "Fira Code", "Courier New", monospace',
-    marginBottom: '12px',
   },
   draftHeader: {
     fontSize: '18px',
@@ -203,23 +202,86 @@ const commonStyles = {
     fontFamily: 'inherit',
     marginTop: '16px',
   },
+  // Type selection cards
+  typeSelectionWrap: {
+    display: 'flex',
+    gap: '16px',
+    marginBottom: '32px',
+    flexWrap: 'wrap',
+  },
+  typeCard: {
+    flex: '1',
+    minWidth: '220px',
+    padding: '24px 20px',
+    border: '2px solid #E2E8F0',
+    borderRadius: '12px',
+    background: '#F8FAFC',
+    cursor: 'pointer',
+    textAlign: 'left',
+    fontFamily: 'inherit',
+    transition: 'border-color 0.15s, background 0.15s',
+  },
+  typeCardSelected: {
+    borderColor: '#4F46E5',
+    background: '#EEF2FF',
+  },
+  typeCardIcon: {
+    fontSize: '28px',
+    marginBottom: '10px',
+    display: 'block',
+  },
+  typeCardTitle: {
+    fontSize: '16px',
+    fontWeight: '700',
+    color: '#1E293B',
+    marginBottom: '6px',
+    lineHeight: '1.3',
+  },
+  typeCardSubtitle: {
+    fontSize: '13px',
+    color: '#64748B',
+    lineHeight: '1.5',
+  },
 };
 
 export default function AgreementsPage({ type, onBack }) {
   const isService = type === 'service';
-  const fields = isService ? SERVICE_FIELDS : EMPLOYMENT_FIELDS;
+
+  // Service perspective state — only relevant for service agreements
+  const [servicePerspective, setServicePerspective] = useState(null); // null | 'client' | 'provider'
+  const [perspectiveChosen, setPerspectiveChosen] = useState(false);
+
+  // Build fields dynamically based on perspective
+  const fields = isService
+    ? SERVICE_FIELDS_BASE.map((f) => ({
+        ...f,
+        label: servicePerspective === 'provider' && f.labelProvider ? f.labelProvider : f.label,
+      }))
+    : EMPLOYMENT_FIELDS;
+
   const title = isService ? '📝 Service Agreement' : '👥 Employment Agreement';
+  const agreementTitle = isService
+    ? servicePerspective === 'provider'
+      ? 'Service Agreement (Provider)'
+      : 'Service Agreement (Client)'
+    : 'Employment Agreement';
+
   const subtitle = isService
-    ? 'Fill in the details below and we\'ll draft a legally sound service agreement for you.'
-    : 'Fill in the details below and we\'ll draft an employment agreement tailored to your hire.';
+    ? servicePerspective === 'provider'
+      ? "Fill in the details below and we'll draft a service agreement that protects you as the provider."
+      : "Fill in the details below and we'll draft a legally sound service agreement for you."
+    : "Fill in the details below and we'll draft an employment agreement tailored to your hire.";
 
   const [formValues, setFormValues] = useState(() =>
-    Object.fromEntries(fields.map((f) => [f.id, '']))
+    Object.fromEntries(
+      (isService ? SERVICE_FIELDS_BASE : EMPLOYMENT_FIELDS).map((f) => [f.id, ''])
+    )
   );
   const [phase, setPhase] = useState('form'); // 'form' | 'loading' | 'result'
   const [draft, setDraft] = useState('');
   const [error, setError] = useState('');
   const [showChat, setShowChat] = useState(false);
+  const [pdfError, setPdfError] = useState('');
 
   function handleChange(id, value) {
     setFormValues((prev) => ({ ...prev, [id]: value }));
@@ -235,7 +297,11 @@ export default function AgreementsPage({ type, onBack }) {
     setPhase('loading');
     setError('');
     try {
-      const data = await draftAgreement(type, formValues);
+      const answers = {
+        ...formValues,
+        ...(isService && servicePerspective === 'provider' ? { perspective: 'provider' } : {}),
+      };
+      const data = await draftAgreement(type, answers);
       const text = data.draft || data.agreement || data.content || data.document || JSON.stringify(data, null, 2);
       setDraft(text);
       setPhase('result');
@@ -250,8 +316,14 @@ export default function AgreementsPage({ type, onBack }) {
     setDraft('');
     setError('');
     setShowChat(false);
+    setPdfError('');
+    if (isService) {
+      setServicePerspective(null);
+      setPerspectiveChosen(false);
+    }
   }
 
+  // Loading screen
   if (phase === 'loading') {
     return (
       <div style={commonStyles.page}>
@@ -270,6 +342,7 @@ export default function AgreementsPage({ type, onBack }) {
     );
   }
 
+  // Result screen
   if (phase === 'result') {
     return (
       <div style={commonStyles.page}>
@@ -277,20 +350,25 @@ export default function AgreementsPage({ type, onBack }) {
           <button style={commonStyles.backButton} onClick={onBack}>← Back</button>
           <span style={commonStyles.topBarTitle}>{title}</span>
         </div>
-        <div style={commonStyles.main}>
+        <div style={{ maxWidth: '900px', margin: '0 auto', padding: '48px 24px 80px' }}>
           <h1 style={commonStyles.pageTitle}>Your draft is ready</h1>
           <p style={{ color: '#64748B', fontSize: '15px', marginBottom: '24px' }}>
-            Review the agreement below. You can ask follow-up questions to refine specific clauses.
+            Review the agreement below. You can edit, comment, and download directly.
           </p>
 
-          <p style={commonStyles.draftHeader}>Draft Agreement</p>
-          <div style={commonStyles.draftBox}>{draft}</div>
+          <p style={commonStyles.draftHeader}>{agreementTitle}</p>
 
-          {!showChat && (
-            <button style={commonStyles.primaryButton} onClick={() => setShowChat(true)}>
-              Refine with AI chat
-            </button>
-          )}
+          {pdfError && <div style={commonStyles.errorBanner}>{pdfError}</div>}
+
+          <DocumentEditor content={draft} title={agreementTitle} />
+
+          <div style={{ marginTop: '20px', display: 'flex', gap: '12px', alignItems: 'center', flexWrap: 'wrap' }}>
+            {!showChat && (
+              <button style={commonStyles.primaryButton} onClick={() => setShowChat(true)}>
+                Refine with AI chat
+              </button>
+            )}
+          </div>
 
           {showChat && (
             <ChatBox
@@ -309,10 +387,95 @@ export default function AgreementsPage({ type, onBack }) {
     );
   }
 
+  // Service perspective selection (shown before form for service agreements)
+  if (isService && !perspectiveChosen) {
+    return (
+      <div style={commonStyles.page}>
+        <div style={commonStyles.topBar}>
+          <button style={commonStyles.backButton} onClick={onBack}>← Back</button>
+          <span style={commonStyles.topBarTitle}>{title}</span>
+        </div>
+        <div style={commonStyles.main}>
+          <h1 style={commonStyles.pageTitle}>📝 Service Agreement</h1>
+          <p style={{ color: '#64748B', fontSize: '15px', marginBottom: '32px', lineHeight: '1.6' }}>
+            Which best describes your situation?
+          </p>
+
+          <div style={commonStyles.typeSelectionWrap}>
+            {/* Client card */}
+            <button
+              style={{
+                ...commonStyles.typeCard,
+                ...(servicePerspective === 'client' ? commonStyles.typeCardSelected : {}),
+              }}
+              onClick={() => setServicePerspective('client')}
+            >
+              <span style={commonStyles.typeCardIcon}>🤝</span>
+              <p style={{
+                ...commonStyles.typeCardTitle,
+                color: servicePerspective === 'client' ? '#4F46E5' : '#1E293B',
+              }}>
+                I need to hire someone
+              </p>
+              <p style={commonStyles.typeCardSubtitle}>
+                I'm the client receiving services — get a contract protecting you when you bring in a contractor or vendor
+              </p>
+            </button>
+
+            {/* Provider card */}
+            <button
+              style={{
+                ...commonStyles.typeCard,
+                ...(servicePerspective === 'provider' ? commonStyles.typeCardSelected : {}),
+              }}
+              onClick={() => setServicePerspective('provider')}
+            >
+              <span style={commonStyles.typeCardIcon}>💼</span>
+              <p style={{
+                ...commonStyles.typeCardTitle,
+                color: servicePerspective === 'provider' ? '#4F46E5' : '#1E293B',
+              }}>
+                I'm being hired for work
+              </p>
+              <p style={commonStyles.typeCardSubtitle}>
+                I'm the provider giving services — get a contract protecting you when you're hired for a project
+              </p>
+            </button>
+          </div>
+
+          <button
+            style={{
+              ...commonStyles.primaryButton,
+              ...(servicePerspective ? {} : commonStyles.primaryButtonDisabled),
+            }}
+            disabled={!servicePerspective}
+            onClick={() => {
+              if (servicePerspective) setPerspectiveChosen(true);
+            }}
+          >
+            Continue →
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // Form screen
   return (
     <div style={commonStyles.page}>
       <div style={commonStyles.topBar}>
-        <button style={commonStyles.backButton} onClick={onBack}>← Back</button>
+        <button
+          style={commonStyles.backButton}
+          onClick={() => {
+            if (isService && perspectiveChosen) {
+              setPerspectiveChosen(false);
+            } else {
+              onBack();
+            }
+          }}
+        >
+          ← Back
+        </button>
         <span style={commonStyles.topBarTitle}>{title}</span>
       </div>
       <div style={commonStyles.main}>

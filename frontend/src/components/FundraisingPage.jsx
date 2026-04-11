@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { generateTermsheet } from '../api.js';
+import { generateTermsheet, exportToPdf } from '../api.js';
 import ChatBox from './ChatBox.jsx';
 
 const FIELDS = [
@@ -128,6 +128,17 @@ const styles = {
     background: '#C7D2FE',
     cursor: 'not-allowed',
   },
+  pdfButton: {
+    padding: '10px 20px',
+    background: '#ffffff',
+    border: '2px solid #4F46E5',
+    borderRadius: '8px',
+    fontSize: '14px',
+    fontWeight: '600',
+    color: '#4F46E5',
+    cursor: 'pointer',
+    fontFamily: 'inherit',
+  },
   loadingState: {
     textAlign: 'center',
     padding: '60px 0',
@@ -216,6 +227,8 @@ export default function FundraisingPage({ onBack }) {
   const [result, setResult] = useState(null);
   const [error, setError] = useState('');
   const [showChat, setShowChat] = useState(false);
+  const [pdfLoading, setPdfLoading] = useState(false);
+  const [pdfError, setPdfError] = useState('');
 
   function handleChange(id, value) {
     setFormValues((prev) => ({ ...prev, [id]: value }));
@@ -231,7 +244,14 @@ export default function FundraisingPage({ onBack }) {
     setPhase('loading');
     setError('');
     try {
-      const data = await generateTermsheet(formValues);
+      const payload = {
+        stage: formValues.funding_stage,
+        amount: formValues.amount_raising,
+        valuation: formValues.pre_money_valuation,
+        investor_type: formValues.investor_type,
+        instrument: formValues.instrument_type,
+      };
+      const data = await generateTermsheet(payload);
       setResult(data);
       setPhase('result');
     } catch (err) {
@@ -245,6 +265,35 @@ export default function FundraisingPage({ onBack }) {
     setResult(null);
     setError('');
     setShowChat(false);
+    setPdfError('');
+  }
+
+  async function handleDownloadPdf(termsheet, clauses) {
+    setPdfLoading(true);
+    setPdfError('');
+    try {
+      const content = [
+        termsheet,
+        clauses.length > 0
+          ? '\n\nCLAUSE EXPLANATIONS\n' + clauses.map((c, i) =>
+              `\n${c.clause || `Clause ${i + 1}`}\n${c.explanation || c.description || c.text || ''}`
+            ).join('\n')
+          : '',
+      ].join('');
+      const blob = await exportToPdf('Term Sheet', content);
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'Term_Sheet.pdf';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      setPdfError('PDF export failed. Please try again.');
+    } finally {
+      setPdfLoading(false);
+    }
   }
 
   if (phase === 'loading') {
@@ -267,8 +316,8 @@ export default function FundraisingPage({ onBack }) {
 
   if (phase === 'result' && result) {
     const termsheet = result.term_sheet || result.termsheet || result.summary || result.content || '';
-    const clauses = Array.isArray(result.clauses || result.explanations)
-      ? (result.clauses || result.explanations)
+    const clauses = Array.isArray(result.clause_explanations)
+      ? result.clause_explanations
       : [];
 
     return (
@@ -300,7 +349,7 @@ export default function FundraisingPage({ onBack }) {
                   <p style={styles.clauseTitle}>
                     {typeof clause === 'string'
                       ? `Clause ${i + 1}`
-                      : clause.title || clause.name || `Clause ${i + 1}`}
+                      : clause.clause || `Clause ${i + 1}`}
                   </p>
                   <p style={styles.clauseExplanation}>
                     {typeof clause === 'string'
@@ -312,11 +361,24 @@ export default function FundraisingPage({ onBack }) {
             </div>
           )}
 
-          {!showChat && (
-            <button style={styles.primaryButton} onClick={() => setShowChat(true)}>
-              Ask follow-up questions
-            </button>
+          {pdfError && (
+            <div style={styles.errorBanner}>{pdfError}</div>
           )}
+
+          <div style={{ display: 'flex', gap: '12px', alignItems: 'center', flexWrap: 'wrap' }}>
+            {!showChat && (
+              <button style={styles.primaryButton} onClick={() => setShowChat(true)}>
+                Ask follow-up questions
+              </button>
+            )}
+            <button
+              style={{ ...styles.pdfButton, opacity: pdfLoading ? 0.6 : 1, cursor: pdfLoading ? 'not-allowed' : 'pointer' }}
+              onClick={() => handleDownloadPdf(termsheet, clauses)}
+              disabled={pdfLoading}
+            >
+              {pdfLoading ? 'Exporting...' : '⬇ Download PDF'}
+            </button>
+          </div>
 
           {showChat && (
             <ChatBox

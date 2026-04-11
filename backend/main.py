@@ -1,9 +1,12 @@
+import io
 import json
 import os
+from datetime import date
 from pathlib import Path
 
 from fastapi import FastAPI, HTTPException, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field
 from typing import Any, Dict, List, Optional
 
@@ -12,6 +15,8 @@ from ai import (
     draft_agreement,
     get_patent_guidance,
     generate_termsheet,
+    generate_filing_doc,
+    generate_patent_app,
     chat,
 )
 
@@ -82,8 +87,8 @@ class PatentGuidanceResponse(BaseModel):
 
 class GenerateTermsheetRequest(BaseModel):
     stage: str = Field(..., description="Funding stage, e.g. 'seed', 'pre-seed'")
-    amount: float = Field(..., description="Investment amount in USD")
-    valuation: float = Field(..., description="Pre-money valuation in USD")
+    amount: str = Field(..., description="Investment amount, e.g. '$750,000'")
+    valuation: str = Field(..., description="Pre-money valuation, e.g. '$5,000,000'")
     investor_type: str = Field(..., description="Type of investor, e.g. 'angels', 'vc'")
     instrument: str = Field(..., description="'SAFE', 'convertible note', or 'priced round'")
 
@@ -115,6 +120,43 @@ class ChatRequest(BaseModel):
 
 class ChatResponse(BaseModel):
     reply: str
+
+
+class ExportPdfRequest(BaseModel):
+    title: str
+    content: str
+
+
+class FilingDocRequest(BaseModel):
+    entity: str = Field(..., description="e.g. 'Delaware C-Corp'")
+    state: str = Field(..., description="e.g. 'Delaware'")
+    form_data: Dict[str, Any] = Field(
+        ...,
+        description=(
+            "company_name, authorized_shares, incorporator_name, "
+            "incorporator_address, agent_name, agent_address"
+        ),
+    )
+
+
+class FilingDocResponse(BaseModel):
+    document: str
+    filing_instructions: List[str]
+    filing_url: str
+
+
+class PatentAppRequest(BaseModel):
+    guidance: Dict[str, Any] = Field(..., description="IP guidance result (ip_type, steps, warnings)")
+    filing_details: Dict[str, Any] = Field(
+        ...,
+        description="invention_title, full_description, inventors, prior_art_done",
+    )
+
+
+class PatentAppResponse(BaseModel):
+    document: str
+    filing_instructions: List[str]
+    filing_url: str
 
 
 # ---------------------------------------------------------------------------
@@ -191,7 +233,13 @@ def generate_termsheet_endpoint(request: GenerateTermsheetRequest):
     """
     Generate a term sheet summary with plain-English clause explanations.
     """
-    details = request.model_dump()
+    details = {
+        "stage": request.stage,
+        "amount": request.amount,
+        "valuation": request.valuation,
+        "investor_type": request.investor_type,
+        "instrument": request.instrument,
+    }
     result = generate_termsheet(details)
     raw_explanations = result.get("clause_explanations", [])
     clause_explanations = [
@@ -205,6 +253,123 @@ def generate_termsheet_endpoint(request: GenerateTermsheetRequest):
     return GenerateTermsheetResponse(
         termsheet=result.get("termsheet", ""),
         clause_explanations=clause_explanations,
+    )
+
+
+@app.post("/export-pdf")
+def export_pdf(request: ExportPdfRequest):
+    """
+    Accept a title and content string, generate a clean PDF, and return it
+    as a binary download.
+    """
+    from reportlab.lib.pagesizes import LETTER
+    from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+    from reportlab.lib.units import inch
+    from reportlab.lib import colors
+    from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
+    from reportlab.platypus import Frame, PageTemplate
+    from reportlab.lib.enums import TA_LEFT, TA_CENTER
+
+    INDIGO = colors.HexColor("#4F46E5")
+
+    buffer = io.BytesIO()
+
+    def _add_footer(canvas, doc):
+        """Draw the StartStack footer with page number on every page."""
+        canvas.saveState()
+        canvas.setFont("Helvetica", 8)
+        canvas.setFillColor(colors.HexColor("#9CA3AF"))
+        page_width, _ = LETTER
+        footer_text = f"StartStack  |  Page {doc.page}"
+        canvas.drawCentredString(page_width / 2, 0.5 * inch, footer_text)
+        canvas.restoreState()
+
+    doc = SimpleDocTemplate(
+        buffer,
+        pagesize=LETTER,
+        leftMargin=1.0 * inch,
+        rightMargin=1.0 * inch,
+        topMargin=1.0 * inch,
+        bottomMargin=0.9 * inch,
+        onFirstPage=_add_footer,
+        onLaterPages=_add_footer,
+    )
+
+    styles = getSampleStyleSheet()
+
+    title_style = ParagraphStyle(
+        "StartStackTitle",
+        parent=styles["Title"],
+        fontName="Helvetica-Bold",
+        fontSize=20,
+        textColor=INDIGO,
+        spaceAfter=16,
+        alignment=TA_LEFT,
+    )
+
+    body_style = ParagraphStyle(
+        "StartStackBody",
+        parent=styles["Normal"],
+        fontName="Helvetica",
+        fontSize=11,
+        leading=16.5,  # 11pt * 1.5 line spacing
+        spaceAfter=6,
+        alignment=TA_LEFT,
+    )
+
+    story = []
+    story.append(Paragraph(request.title, title_style))
+    story.append(Spacer(1, 0.1 * inch))
+
+    # Split content on newlines and emit each non-empty line as its own paragraph
+    for line in request.content.splitlines():
+        if line.strip():
+            # Escape any HTML-like characters to avoid reportlab parse errors
+            safe_line = (
+                line.replace("&", "&amp;")
+                    .replace("<", "&lt;")
+                    .replace(">", "&gt;")
+            )
+            story.append(Paragraph(safe_line, body_style))
+        else:
+            story.append(Spacer(1, 0.08 * inch))
+
+    doc.build(story, onFirstPage=_add_footer, onLaterPages=_add_footer)
+    buffer.seek(0)
+
+    safe_filename = request.title.replace("/", "-").replace("\\", "-")
+    return StreamingResponse(
+        buffer,
+        media_type="application/pdf",
+        headers={
+            "Content-Disposition": f'attachment; filename="{safe_filename}.pdf"',
+        },
+    )
+
+
+@app.post("/generate-filing-doc", response_model=FilingDocResponse)
+def generate_filing_doc_endpoint(request: FilingDocRequest):
+    """
+    Generate a pre-filled Articles of Incorporation document and filing instructions.
+    """
+    result = generate_filing_doc(request.entity, request.state, request.form_data)
+    return FilingDocResponse(
+        document=result.get("document", ""),
+        filing_instructions=result.get("filing_instructions", []),
+        filing_url=result.get("filing_url", "https://corp.delaware.gov"),
+    )
+
+
+@app.post("/generate-patent-app", response_model=PatentAppResponse)
+def generate_patent_app_endpoint(request: PatentAppRequest):
+    """
+    Generate a Provisional Patent Application and USPTO filing instructions.
+    """
+    result = generate_patent_app(request.guidance, request.filing_details)
+    return PatentAppResponse(
+        document=result.get("document", ""),
+        filing_instructions=result.get("filing_instructions", []),
+        filing_url=result.get("filing_url", "https://www.uspto.gov/patents/apply"),
     )
 
 

@@ -3,6 +3,8 @@ from .client import (
     draft_agreement,
     get_patent_guidance,
     generate_termsheet,
+    generate_filing_doc,
+    generate_patent_app,
     chat,
 )
 
@@ -11,5 +13,7 @@ __all__ = [
     "draft_agreement",
     "get_patent_guidance",
     "generate_termsheet",
+    "generate_filing_doc",
+    "generate_patent_app",
     "chat",
 ]

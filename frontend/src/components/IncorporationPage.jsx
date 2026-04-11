@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { getRecommendation } from '../api.js';
+import { getRecommendation, exportToPdf, generateFilingDoc } from '../api.js';
 import ChatBox from './ChatBox.jsx';
+import DocumentEditor from './DocumentEditor.jsx';
 
 const QUESTIONS = [
   {
@@ -42,6 +43,47 @@ const QUESTIONS = [
     id: 'stage',
     text: "What stage are you at?",
     options: ['Just an idea', 'Pre-revenue', 'Early revenue'],
+  },
+];
+
+const FILING_FIELDS = [
+  {
+    id: 'company_name',
+    label: 'What will your company be called?',
+    placeholder: 'e.g. Acme Technologies Inc.',
+    type: 'text',
+    hint: 'Must end in Inc., Corp., or LLC',
+  },
+  {
+    id: 'authorized_shares',
+    label: 'Number of authorized shares',
+    placeholder: '10,000,000',
+    type: 'text',
+  },
+  {
+    id: 'incorporator_name',
+    label: 'Incorporator name',
+    placeholder: 'e.g. Jane Smith',
+    type: 'text',
+  },
+  {
+    id: 'incorporator_address',
+    label: 'Incorporator address',
+    placeholder: 'e.g. 123 Main St, San Francisco, CA 94105',
+    type: 'text',
+  },
+  {
+    id: 'registered_agent_name',
+    label: 'Registered agent name',
+    placeholder: 'e.g. Northwest Registered Agent',
+    type: 'text',
+    hint: 'Must have a Delaware address',
+  },
+  {
+    id: 'registered_agent_address',
+    label: 'Registered agent address',
+    placeholder: 'e.g. 8 The Green, Dover, DE 19901',
+    type: 'text',
   },
 ];
 
@@ -159,9 +201,31 @@ const styles = {
     cursor: 'pointer',
     fontFamily: 'inherit',
   },
+  primaryButtonLarge: {
+    padding: '12px 28px',
+    background: '#4F46E5',
+    border: 'none',
+    borderRadius: '8px',
+    fontSize: '15px',
+    fontWeight: '600',
+    color: '#ffffff',
+    cursor: 'pointer',
+    fontFamily: 'inherit',
+  },
   primaryButtonDisabled: {
     background: '#C7D2FE',
     cursor: 'not-allowed',
+  },
+  pdfButton: {
+    padding: '10px 20px',
+    background: '#ffffff',
+    border: '2px solid #4F46E5',
+    borderRadius: '8px',
+    fontSize: '14px',
+    fontWeight: '600',
+    color: '#4F46E5',
+    cursor: 'pointer',
+    fontFamily: 'inherit',
   },
   loadingState: {
     textAlign: 'center',
@@ -239,6 +303,43 @@ const styles = {
     color: '#DC2626',
     marginBottom: '20px',
   },
+  formGroup: {
+    marginBottom: '20px',
+  },
+  label: {
+    display: 'block',
+    fontSize: '13px',
+    fontWeight: '600',
+    color: '#374151',
+    marginBottom: '6px',
+  },
+  hint: {
+    fontSize: '12px',
+    color: '#94A3B8',
+    marginBottom: '6px',
+    display: 'block',
+  },
+  input: {
+    width: '100%',
+    padding: '10px 14px',
+    borderRadius: '8px',
+    border: '1px solid #CBD5E1',
+    fontSize: '14px',
+    color: '#1E293B',
+    outline: 'none',
+    fontFamily: 'inherit',
+    boxSizing: 'border-box',
+  },
+  noticeBanner: {
+    background: '#FFFBEB',
+    border: '1px solid #FDE68A',
+    borderRadius: '10px',
+    padding: '16px 20px',
+    fontSize: '14px',
+    color: '#92400E',
+    lineHeight: '1.6',
+    marginBottom: '24px',
+  },
 };
 
 function ProgressBar({ current, total }) {
@@ -256,13 +357,23 @@ function ProgressBar({ current, total }) {
 }
 
 export default function IncorporationPage({ onBack }) {
-  const [step, setStep] = useState(0); // 0-indexed question index
+  const [step, setStep] = useState(0);
   const [answers, setAnswers] = useState({});
   const [selected, setSelected] = useState(null);
-  const [phase, setPhase] = useState('wizard'); // 'wizard' | 'loading' | 'result'
+  const [phase, setPhase] = useState('wizard'); // 'wizard' | 'loading' | 'result' | 'filing' | 'filing-loading' | 'filing-result'
   const [result, setResult] = useState(null);
   const [error, setError] = useState('');
   const [showChat, setShowChat] = useState(false);
+  const [pdfLoading, setPdfLoading] = useState(false);
+  const [pdfError, setPdfError] = useState('');
+
+  // Filing form state
+  const [filingValues, setFilingValues] = useState(() =>
+    Object.fromEntries(FILING_FIELDS.map((f) => [f.id, '']))
+  );
+  const [filingLoading, setFilingLoading] = useState(false);
+  const [filingError, setFilingError] = useState('');
+  const [filingDoc, setFilingDoc] = useState('');
 
   const question = QUESTIONS[step];
   const isLast = step === QUESTIONS.length - 1;
@@ -314,8 +425,177 @@ export default function IncorporationPage({ onBack }) {
     setResult(null);
     setError('');
     setShowChat(false);
+    setPdfError('');
   }
 
+  async function handleDownloadPdf(entity, explanation, considerations) {
+    setPdfLoading(true);
+    setPdfError('');
+    try {
+      const content = [
+        `Recommended Entity: ${entity}`,
+        explanation ? `\n\n${explanation}` : '',
+        considerations.length > 0
+          ? '\n\nThings to Know:\n' + considerations.map((c) => `• ${typeof c === 'string' ? c : c.text || JSON.stringify(c)}`).join('\n')
+          : '',
+      ].join('');
+      const blob = await exportToPdf('Incorporation Recommendation', content);
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'Incorporation_Recommendation.pdf';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      setPdfError('PDF export failed. Please try again.');
+    } finally {
+      setPdfLoading(false);
+    }
+  }
+
+  function handleFilingChange(id, value) {
+    setFilingValues((prev) => ({ ...prev, [id]: value }));
+  }
+
+  function isFilingFormValid() {
+    return FILING_FIELDS.every((f) => filingValues[f.id]?.trim());
+  }
+
+  async function handleFilingSubmit(e) {
+    e.preventDefault();
+    if (!isFilingFormValid()) return;
+    setFilingLoading(true);
+    setFilingError('');
+    try {
+      const entity = result
+        ? result.entity || result.recommendation || result.entity_type || 'C-Corp'
+        : 'C-Corp';
+      const data = await generateFilingDoc(entity, 'Delaware', filingValues);
+      const text = data.document || data.content || data.draft || JSON.stringify(data, null, 2);
+      setFilingDoc(text);
+      setPhase('filing-result');
+    } catch (err) {
+      setFilingError('Something went wrong generating your filing documents. Please try again.');
+    } finally {
+      setFilingLoading(false);
+    }
+  }
+
+  // Filing loading screen
+  if (filingLoading) {
+    return (
+      <div style={styles.page}>
+        <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+        <div style={styles.topBar}>
+          <button style={styles.backButton} onClick={onBack}>← Back</button>
+          <span style={styles.topBarTitle}>⚖️ Incorporation</span>
+        </div>
+        <div style={styles.main}>
+          <div style={styles.loadingState}>
+            <div style={styles.spinner} />
+            <p style={styles.loadingText}>Generating your filing documents...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Filing result screen
+  if (phase === 'filing-result' && filingDoc) {
+    return (
+      <div style={styles.page}>
+        <div style={styles.topBar}>
+          <button style={styles.backButton} onClick={onBack}>← Back</button>
+          <span style={styles.topBarTitle}>⚖️ Incorporation — Filing Documents</span>
+        </div>
+        <div style={{ maxWidth: '900px', margin: '0 auto', padding: '48px 24px 80px' }}>
+          <h1 style={{ fontSize: '26px', fontWeight: '800', marginBottom: '8px' }}>
+            Your filing documents are ready
+          </h1>
+          <p style={{ color: '#64748B', fontSize: '15px', marginBottom: '24px' }}>
+            Review, edit, and download your incorporation documents below.
+          </p>
+
+          <div style={styles.noticeBanner}>
+            ⚠️ This document is ready to review. Once you're satisfied, download it and submit it to the Delaware Division of Corporations at{' '}
+            <a href="https://corp.delaware.gov" target="_blank" rel="noopener noreferrer" style={{ color: '#92400E', fontWeight: '700' }}>
+              corp.delaware.gov
+            </a>
+            . Filing fee: $89.
+          </div>
+
+          <DocumentEditor content={filingDoc} title="Certificate of Incorporation" />
+
+          <div style={{ marginTop: '20px' }}>
+            <button
+              style={styles.secondaryButton}
+              onClick={() => { setPhase('result'); setFilingDoc(''); }}
+            >
+              ← Back to recommendation
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Filing form screen
+  if (phase === 'filing') {
+    return (
+      <div style={styles.page}>
+        <div style={styles.topBar}>
+          <button style={styles.backButton} onClick={() => setPhase('result')}>← Back</button>
+          <span style={styles.topBarTitle}>⚖️ Incorporation — File My Company</span>
+        </div>
+        <div style={styles.main}>
+          <h1 style={{ fontSize: '26px', fontWeight: '800', marginBottom: '8px' }}>
+            File My Company
+          </h1>
+          <p style={{ color: '#64748B', fontSize: '15px', marginBottom: '32px', lineHeight: '1.6' }}>
+            Provide the details below to generate your incorporation documents. We'll create a Delaware Certificate of Incorporation ready to file.
+          </p>
+
+          {filingError && <div style={styles.errorBanner}>{filingError}</div>}
+
+          <form onSubmit={handleFilingSubmit}>
+            {FILING_FIELDS.map((field) => (
+              <div key={field.id} style={styles.formGroup}>
+                <label style={styles.label} htmlFor={field.id}>
+                  {field.label}
+                </label>
+                {field.hint && (
+                  <span style={styles.hint}>{field.hint}</span>
+                )}
+                <input
+                  id={field.id}
+                  type="text"
+                  style={styles.input}
+                  placeholder={field.placeholder}
+                  value={filingValues[field.id]}
+                  onChange={(e) => handleFilingChange(field.id, e.target.value)}
+                />
+              </div>
+            ))}
+
+            <button
+              type="submit"
+              style={{
+                ...styles.primaryButtonLarge,
+                ...(isFilingFormValid() ? {} : styles.primaryButtonDisabled),
+              }}
+              disabled={!isFilingFormValid()}
+            >
+              Generate My Filing Documents →
+            </button>
+          </form>
+        </div>
+      </div>
+    );
+  }
+
+  // Loading screen (recommendation)
   if (phase === 'loading') {
     return (
       <div style={styles.page}>
@@ -334,6 +614,7 @@ export default function IncorporationPage({ onBack }) {
     );
   }
 
+  // Result screen (recommendation)
   if (phase === 'result' && result) {
     const entity = result.entity || result.recommendation || result.entity_type || 'Entity Recommendation';
     const explanation = result.explanation || result.summary || result.description || '';
@@ -373,14 +654,22 @@ export default function IncorporationPage({ onBack }) {
             )}
           </div>
 
-          {!showChat && (
+          {pdfError && <div style={styles.errorBanner}>{pdfError}</div>}
+
+          <div style={{ display: 'flex', gap: '12px', alignItems: 'center', flexWrap: 'wrap', marginBottom: '16px' }}>
+            {!showChat && (
+              <button style={styles.primaryButton} onClick={() => setShowChat(true)}>
+                Ask follow-up questions
+              </button>
+            )}
             <button
-              style={styles.primaryButton}
-              onClick={() => setShowChat(true)}
+              style={{ ...styles.pdfButton, opacity: pdfLoading ? 0.6 : 1, cursor: pdfLoading ? 'not-allowed' : 'pointer' }}
+              onClick={() => handleDownloadPdf(entity, explanation, considerations)}
+              disabled={pdfLoading}
             >
-              Ask follow-up questions
+              {pdfLoading ? 'Exporting...' : '⬇ Download PDF'}
             </button>
-          )}
+          </div>
 
           {showChat && (
             <ChatBox
@@ -388,6 +677,28 @@ export default function IncorporationPage({ onBack }) {
               context={{ entity, explanation, considerations, answers }}
             />
           )}
+
+          {/* File My Company button */}
+          <div style={{
+            marginTop: '28px',
+            padding: '24px',
+            background: '#EEF2FF',
+            border: '1px solid #C7D2FE',
+            borderRadius: '12px',
+          }}>
+            <p style={{ fontSize: '15px', fontWeight: '700', color: '#3730A3', marginBottom: '6px' }}>
+              Ready to make it official?
+            </p>
+            <p style={{ fontSize: '14px', color: '#4338CA', marginBottom: '16px', lineHeight: '1.5' }}>
+              Generate your Delaware Certificate of Incorporation and get ready to file.
+            </p>
+            <button
+              style={styles.primaryButtonLarge}
+              onClick={() => setPhase('filing')}
+            >
+              File My Company →
+            </button>
+          </div>
 
           <div style={{ marginTop: '24px' }}>
             <button style={styles.secondaryButton} onClick={handleRetry}>
@@ -399,6 +710,7 @@ export default function IncorporationPage({ onBack }) {
     );
   }
 
+  // Wizard
   return (
     <div style={styles.page}>
       <div style={styles.topBar}>

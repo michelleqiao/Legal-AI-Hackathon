@@ -32,3 +32,21 @@ export function generateTermsheet(details) {
 export function chat(module, context, history, message) {
   return post('/chat', { module, context, history, message });
 }
+
+export async function exportToPdf(title, content) {
+  const response = await fetch(`${BASE_URL}/export-pdf`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ title, content }),
+  });
+  if (!response.ok) throw new Error('PDF export failed');
+  return response.blob(); // returns a PDF blob for download
+}
+
+export function generateFilingDoc(entity, state, formData) {
+  return post('/generate-filing-doc', { entity, state, form_data: formData });
+}
+
+export function generatePatentApp(guidance, filingDetails) {
+  return post('/generate-patent-app', { guidance, filing_details: filingDetails });
+}

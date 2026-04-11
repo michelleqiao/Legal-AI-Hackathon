@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { getPatentGuidance } from '../api.js';
+import { getPatentGuidance, exportToPdf, generatePatentApp } from '../api.js';
 import ChatBox from './ChatBox.jsx';
+import DocumentEditor from './DocumentEditor.jsx';
 
 const styles = {
   page: {
@@ -54,6 +55,14 @@ const styles = {
     color: '#374151',
     marginBottom: '8px',
   },
+  labelLarge: {
+    display: 'block',
+    fontSize: '14px',
+    fontWeight: '600',
+    color: '#374151',
+    marginBottom: '8px',
+    lineHeight: '1.4',
+  },
   textarea: {
     width: '100%',
     padding: '14px 16px',
@@ -67,6 +76,43 @@ const styles = {
     minHeight: '160px',
     boxSizing: 'border-box',
     lineHeight: '1.6',
+  },
+  textareaLarge: {
+    width: '100%',
+    padding: '14px 16px',
+    borderRadius: '10px',
+    border: '1px solid #CBD5E1',
+    fontSize: '14px',
+    color: '#1E293B',
+    outline: 'none',
+    fontFamily: 'inherit',
+    resize: 'vertical',
+    minHeight: '220px',
+    boxSizing: 'border-box',
+    lineHeight: '1.6',
+  },
+  input: {
+    width: '100%',
+    padding: '10px 14px',
+    borderRadius: '8px',
+    border: '1px solid #CBD5E1',
+    fontSize: '14px',
+    color: '#1E293B',
+    outline: 'none',
+    fontFamily: 'inherit',
+    boxSizing: 'border-box',
+  },
+  select: {
+    width: '100%',
+    padding: '10px 14px',
+    borderRadius: '8px',
+    border: '1px solid #CBD5E1',
+    fontSize: '14px',
+    color: '#1E293B',
+    outline: 'none',
+    fontFamily: 'inherit',
+    background: '#ffffff',
+    boxSizing: 'border-box',
   },
   charCount: {
     fontSize: '12px',
@@ -89,6 +135,17 @@ const styles = {
   primaryButtonDisabled: {
     background: '#C7D2FE',
     cursor: 'not-allowed',
+  },
+  pdfButton: {
+    padding: '10px 20px',
+    background: '#ffffff',
+    border: '2px solid #4F46E5',
+    borderRadius: '8px',
+    fontSize: '14px',
+    fontWeight: '600',
+    color: '#4F46E5',
+    cursor: 'pointer',
+    fontFamily: 'inherit',
   },
   loadingState: {
     textAlign: 'center',
@@ -209,14 +266,67 @@ const styles = {
     fontFamily: 'inherit',
     marginTop: '16px',
   },
+  formGroup: {
+    marginBottom: '20px',
+  },
+  inventorRow: {
+    display: 'flex',
+    gap: '10px',
+    marginBottom: '10px',
+    alignItems: 'flex-start',
+  },
+  removeBtn: {
+    padding: '8px 12px',
+    background: '#FEF2F2',
+    border: '1px solid #FECACA',
+    borderRadius: '6px',
+    color: '#DC2626',
+    fontSize: '13px',
+    fontWeight: '600',
+    cursor: 'pointer',
+    fontFamily: 'inherit',
+    flexShrink: 0,
+    marginTop: '0',
+  },
+  addBtn: {
+    padding: '8px 16px',
+    background: '#F0FDF4',
+    border: '1px solid #BBF7D0',
+    borderRadius: '6px',
+    color: '#15803D',
+    fontSize: '13px',
+    fontWeight: '600',
+    cursor: 'pointer',
+    fontFamily: 'inherit',
+  },
+  noticeBanner: {
+    background: '#FFFBEB',
+    border: '1px solid #FDE68A',
+    borderRadius: '10px',
+    padding: '16px 20px',
+    fontSize: '14px',
+    color: '#92400E',
+    lineHeight: '1.6',
+    marginBottom: '24px',
+  },
 };
 
 export default function PatentsPage({ onBack }) {
   const [description, setDescription] = useState('');
-  const [phase, setPhase] = useState('form'); // 'form' | 'loading' | 'result'
+  const [phase, setPhase] = useState('form'); // 'form' | 'loading' | 'result' | 'filing' | 'filing-loading' | 'filing-result'
   const [result, setResult] = useState(null);
   const [error, setError] = useState('');
   const [showChat, setShowChat] = useState(false);
+  const [pdfLoading, setPdfLoading] = useState(false);
+  const [pdfError, setPdfError] = useState('');
+
+  // Filing form state
+  const [inventionTitle, setInventionTitle] = useState('');
+  const [inventionDesc, setInventionDesc] = useState('');
+  const [inventors, setInventors] = useState([{ name: '', address: '' }]);
+  const [priorArt, setPriorArt] = useState('');
+  const [filingError, setFilingError] = useState('');
+  const [filingDoc, setFilingDoc] = useState('');
 
   const MIN_LENGTH = 30;
   const canSubmit = description.trim().length >= MIN_LENGTH;
@@ -242,8 +352,262 @@ export default function PatentsPage({ onBack }) {
     setResult(null);
     setError('');
     setShowChat(false);
+    setPdfError('');
   }
 
+  async function handleDownloadPdf(protectionType, explanation, steps, warnings) {
+    setPdfLoading(true);
+    setPdfError('');
+    try {
+      const content = [
+        `Recommended IP Protection: ${protectionType}`,
+        explanation ? `\n\n${explanation}` : '',
+        steps.length > 0
+          ? '\n\nNext Steps:\n' + steps.map((s, i) => `${i + 1}. ${typeof s === 'string' ? s : s.text || ''}`).join('\n')
+          : '',
+        warnings.length > 0
+          ? '\n\nKey Warnings:\n' + warnings.map((w) => `• ${typeof w === 'string' ? w : w.text || ''}`).join('\n')
+          : '',
+      ].join('');
+      const blob = await exportToPdf('IP Guidance', content);
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'IP_Guidance.pdf';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      setPdfError('PDF export failed. Please try again.');
+    } finally {
+      setPdfLoading(false);
+    }
+  }
+
+  // Inventor helpers
+  function addInventor() {
+    setInventors((prev) => [...prev, { name: '', address: '' }]);
+  }
+
+  function removeInventor(i) {
+    setInventors((prev) => prev.filter((_, idx) => idx !== i));
+  }
+
+  function updateInventor(i, field, value) {
+    setInventors((prev) => prev.map((inv, idx) => idx === i ? { ...inv, [field]: value } : inv));
+  }
+
+  function isFilingValid() {
+    return (
+      inventionTitle.trim() &&
+      inventionDesc.trim().length >= 50 &&
+      inventors.every((inv) => inv.name.trim() && inv.address.trim()) &&
+      priorArt
+    );
+  }
+
+  async function handleFilingSubmit(e) {
+    e.preventDefault();
+    if (!isFilingValid()) return;
+    setPhase('filing-loading');
+    setFilingError('');
+    try {
+      const filingDetails = {
+        invention_title: inventionTitle,
+        description: inventionDesc,
+        inventors,
+        prior_art_search: priorArt,
+      };
+      const data = await generatePatentApp(result, filingDetails);
+      const text = data.document || data.content || data.application || JSON.stringify(data, null, 2);
+      setFilingDoc(text);
+      setPhase('filing-result');
+    } catch (err) {
+      setFilingError('Something went wrong generating your patent application. Please try again.');
+      setPhase('filing');
+    }
+  }
+
+  // Filing loading
+  if (phase === 'filing-loading') {
+    return (
+      <div style={styles.page}>
+        <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+        <div style={styles.topBar}>
+          <button style={styles.backButton} onClick={onBack}>← Back</button>
+          <span style={styles.topBarTitle}>💡 Patents & IP</span>
+        </div>
+        <div style={styles.main}>
+          <div style={styles.loadingState}>
+            <div style={styles.spinner} />
+            <p style={styles.loadingText}>Generating your patent application...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Filing result
+  if (phase === 'filing-result' && filingDoc) {
+    return (
+      <div style={styles.page}>
+        <div style={styles.topBar}>
+          <button style={styles.backButton} onClick={onBack}>← Back</button>
+          <span style={styles.topBarTitle}>💡 Patents & IP — Patent Application</span>
+        </div>
+        <div style={{ maxWidth: '900px', margin: '0 auto', padding: '48px 24px 80px' }}>
+          <h1 style={{ fontSize: '26px', fontWeight: '800', marginBottom: '8px' }}>
+            Your patent application is ready
+          </h1>
+          <p style={{ color: '#64748B', fontSize: '15px', marginBottom: '24px' }}>
+            Review, edit, and download your provisional patent application below.
+          </p>
+
+          <div style={styles.noticeBanner}>
+            ⚠️ This is a Provisional Patent Application template. Review carefully, then file at{' '}
+            <a href="https://USPTO.gov" target="_blank" rel="noopener noreferrer" style={{ color: '#92400E', fontWeight: '700' }}>
+              USPTO.gov
+            </a>
+            . Filing fee: ~$320 for micro entities.
+          </div>
+
+          <DocumentEditor content={filingDoc} title={`Patent Application — ${inventionTitle}`} />
+
+          <div style={{ marginTop: '20px' }}>
+            <button
+              style={styles.secondaryButton}
+              onClick={() => { setPhase('result'); setFilingDoc(''); }}
+            >
+              ← Back to IP guidance
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Filing form
+  if (phase === 'filing') {
+    return (
+      <div style={styles.page}>
+        <div style={styles.topBar}>
+          <button style={styles.backButton} onClick={() => setPhase('result')}>← Back</button>
+          <span style={styles.topBarTitle}>💡 Patents & IP — Start Filing</span>
+        </div>
+        <div style={styles.main}>
+          <h1 style={{ fontSize: '26px', fontWeight: '800', marginBottom: '8px' }}>
+            Start My Patent Filing
+          </h1>
+          <p style={{ color: '#64748B', fontSize: '15px', marginBottom: '32px', lineHeight: '1.6' }}>
+            Provide the details below to generate a Provisional Patent Application.
+          </p>
+
+          {filingError && <div style={styles.errorBanner}>{filingError}</div>}
+
+          <form onSubmit={handleFilingSubmit}>
+            {/* Invention title */}
+            <div style={styles.formGroup}>
+              <label style={styles.label} htmlFor="invention-title">
+                Invention title
+              </label>
+              <input
+                id="invention-title"
+                type="text"
+                style={styles.input}
+                placeholder="e.g. Smart Appliance Failure Prediction System"
+                value={inventionTitle}
+                onChange={(e) => setInventionTitle(e.target.value)}
+              />
+            </div>
+
+            {/* Full description */}
+            <div style={styles.formGroup}>
+              <label style={styles.labelLarge} htmlFor="invention-desc">
+                Describe exactly how your invention works, what makes it new, and what problem it solves
+              </label>
+              <textarea
+                id="invention-desc"
+                style={styles.textareaLarge}
+                placeholder="Describe the invention in detail — how it works technically, what existing solutions it improves on, and what specific problem it addresses..."
+                value={inventionDesc}
+                onChange={(e) => setInventionDesc(e.target.value)}
+              />
+              <p style={styles.charCount}>{inventionDesc.length} characters{inventionDesc.length > 0 && inventionDesc.length < 50 ? ` — please add more detail (${50 - inventionDesc.length} more characters needed)` : ''}</p>
+            </div>
+
+            {/* Inventors */}
+            <div style={styles.formGroup}>
+              <label style={styles.label}>List of inventors</label>
+              {inventors.map((inv, i) => (
+                <div key={i} style={styles.inventorRow}>
+                  <div style={{ flex: 1, display: 'flex', gap: '10px' }}>
+                    <input
+                      type="text"
+                      style={{ ...styles.input, flex: 1 }}
+                      placeholder="Full name"
+                      value={inv.name}
+                      onChange={(e) => updateInventor(i, 'name', e.target.value)}
+                    />
+                    <input
+                      type="text"
+                      style={{ ...styles.input, flex: 2 }}
+                      placeholder="Address"
+                      value={inv.address}
+                      onChange={(e) => updateInventor(i, 'address', e.target.value)}
+                    />
+                  </div>
+                  {inventors.length > 1 && (
+                    <button
+                      type="button"
+                      style={styles.removeBtn}
+                      onClick={() => removeInventor(i)}
+                    >
+                      Remove
+                    </button>
+                  )}
+                </div>
+              ))}
+              <button type="button" style={styles.addBtn} onClick={addInventor}>
+                + Add inventor
+              </button>
+            </div>
+
+            {/* Prior art */}
+            <div style={styles.formGroup}>
+              <label style={styles.label} htmlFor="prior-art">
+                Prior art search done?
+              </label>
+              <select
+                id="prior-art"
+                style={styles.select}
+                value={priorArt}
+                onChange={(e) => setPriorArt(e.target.value)}
+              >
+                <option value="">Select an option...</option>
+                <option value="Yes">Yes</option>
+                <option value="No">No</option>
+                <option value="In progress">In progress</option>
+              </select>
+            </div>
+
+            <button
+              type="submit"
+              style={{
+                ...styles.primaryButton,
+                ...(isFilingValid() ? {} : styles.primaryButtonDisabled),
+              }}
+              disabled={!isFilingValid()}
+            >
+              Generate Patent Application →
+            </button>
+          </form>
+        </div>
+      </div>
+    );
+  }
+
+  // Guidance loading
   if (phase === 'loading') {
     return (
       <div style={styles.page}>
@@ -262,6 +626,7 @@ export default function PatentsPage({ onBack }) {
     );
   }
 
+  // Guidance result
   if (phase === 'result' && result) {
     const protectionType = result.protection_type || result.ip_type || result.type || 'IP Protection';
     const explanation = result.explanation || result.summary || result.description || '';
@@ -320,11 +685,22 @@ export default function PatentsPage({ onBack }) {
             </div>
           )}
 
-          {!showChat && (
-            <button style={{ ...styles.primaryButton, marginTop: '8px' }} onClick={() => setShowChat(true)}>
-              Ask follow-up questions
+          {pdfError && <div style={styles.errorBanner}>{pdfError}</div>}
+
+          <div style={{ display: 'flex', gap: '12px', alignItems: 'center', flexWrap: 'wrap', marginTop: '8px' }}>
+            {!showChat && (
+              <button style={styles.primaryButton} onClick={() => setShowChat(true)}>
+                Ask follow-up questions
+              </button>
+            )}
+            <button
+              style={{ ...styles.pdfButton, opacity: pdfLoading ? 0.6 : 1, cursor: pdfLoading ? 'not-allowed' : 'pointer' }}
+              onClick={() => handleDownloadPdf(protectionType, explanation, steps, warnings)}
+              disabled={pdfLoading}
+            >
+              {pdfLoading ? 'Exporting...' : '⬇ Download PDF'}
             </button>
-          )}
+          </div>
 
           {showChat && (
             <ChatBox
@@ -332,6 +708,28 @@ export default function PatentsPage({ onBack }) {
               context={{ protectionType, explanation, steps, warnings, description }}
             />
           )}
+
+          {/* Start Filing button */}
+          <div style={{
+            marginTop: '28px',
+            padding: '24px',
+            background: '#EEF2FF',
+            border: '1px solid #C7D2FE',
+            borderRadius: '12px',
+          }}>
+            <p style={{ fontSize: '15px', fontWeight: '700', color: '#3730A3', marginBottom: '6px' }}>
+              Ready to file?
+            </p>
+            <p style={{ fontSize: '14px', color: '#4338CA', marginBottom: '16px', lineHeight: '1.5' }}>
+              Generate a Provisional Patent Application to establish your priority date at the USPTO.
+            </p>
+            <button
+              style={styles.primaryButton}
+              onClick={() => setPhase('filing')}
+            >
+              Start My Filing →
+            </button>
+          </div>
 
           <div>
             <button style={styles.secondaryButton} onClick={handleReset}>
@@ -343,6 +741,7 @@ export default function PatentsPage({ onBack }) {
     );
   }
 
+  // Initial form
   return (
     <div style={styles.page}>
       <div style={styles.topBar}>
