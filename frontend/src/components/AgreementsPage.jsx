@@ -21,7 +21,7 @@ const SERVICE_FIELDS_BASE = [
 
 const EMPLOYMENT_FIELDS = [
   { id: 'employee_name', label: 'Employee name', placeholder: 'e.g. Alex Johnson', type: 'text' },
-  { id: 'company_name', label: 'Company name', placeholder: 'e.g. StartStack Inc.', type: 'text' },
+  { id: 'company_name', label: 'Company name', placeholder: 'e.g. Legal Foundry Inc.', type: 'text' },
   { id: 'role_title', label: 'Role title', placeholder: 'e.g. Senior Software Engineer', type: 'text' },
   { id: 'salary', label: 'Annual salary', placeholder: 'e.g. $120,000', type: 'text' },
   { id: 'start_date', label: 'Start date', placeholder: 'e.g. February 1, 2025', type: 'text' },

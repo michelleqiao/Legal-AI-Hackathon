@@ -191,7 +191,7 @@ export default function ChatBox({ module, context }) {
         </button>
       </div>
       <p style={styles.disclaimer}>
-        StartStack does not provide legal advice. Always consult a qualified attorney.
+        Legal Foundry does not provide legal advice. Always consult a qualified attorney.
       </p>
     </div>
   );

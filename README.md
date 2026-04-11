@@ -1,14 +1,14 @@
-# StartStack
+# Legal Foundry
 
 > **Building the one-stop legal operating system for startups and SMBs — from incorporation to contracts, compliance, and global expansion.**
 
-Startups and small businesses shouldn't need a $500/hr lawyer for every legal decision they face. StartStack is an AI-powered legal platform that handles the full lifecycle of a company's legal needs — starting with the very first decision every founder has to make: how to incorporate.
+Startups and small businesses shouldn't need a $500/hr lawyer for every legal decision they face. Legal Foundry is an AI-powered legal platform that handles the full lifecycle of a company's legal needs — starting with the very first decision every founder has to make: how to incorporate.
 
 ---
 
 ## Company Vision
 
-Legal infrastructure for businesses is broken. It's expensive, inaccessible, and built for big companies with in-house counsel. StartStack is building the legal OS for the other 99% — solo founders, co-founder teams, and small businesses who need real legal help without the billable hours.
+Legal infrastructure for businesses is broken. It's expensive, inaccessible, and built for big companies with in-house counsel. Legal Foundry is building the legal OS for the other 99% — solo founders, co-founder teams, and small businesses who need real legal help without the billable hours.
 
 **One platform. Every legal need a startup has.**
 
@@ -61,7 +61,7 @@ Legal infrastructure for businesses is broken. It's expensive, inaccessible, and
 | v3 | Multi-state filings, deeper contract library | Months 12–18 |
 | v4 | International market entry, multi-jurisdiction compliance | Months 18–30 |
 
-**Long-term vision:** StartStack becomes the default legal infrastructure layer for startups and SMBs — from day zero incorporation through global expansion — replacing the need for a general counsel until a company is large enough to hire one.
+**Long-term vision:** Legal Foundry becomes the default legal infrastructure layer for startups and SMBs — from day zero incorporation through global expansion — replacing the need for a general counsel until a company is large enough to hire one.
 
 ---
 

@@ -158,7 +158,7 @@ export default function HomePage({ onNavigate }) {
   return (
     <div style={styles.page}>
       <header style={styles.header}>
-        <h1 style={styles.logo}>StartStack</h1>
+        <h1 style={styles.logo}>Legal Foundry</h1>
         <p style={styles.tagline}>Your AI legal team. No billable hours.</p>
       </header>
 
@@ -172,7 +172,7 @@ export default function HomePage({ onNavigate }) {
       </main>
 
       <footer style={styles.footer}>
-        StartStack is not a law firm and does not provide legal advice. Always consult a qualified attorney for legal decisions.
+        Legal Foundry is not a law firm and does not provide legal advice. Always consult a qualified attorney for legal decisions.
       </footer>
     </div>
   );

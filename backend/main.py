@@ -25,7 +25,7 @@ from ai import (
 # ---------------------------------------------------------------------------
 
 app = FastAPI(
-    title="StartStack API",
+    title="Legal Foundry API",
     description="AI-powered legal platform for startups",
     version="1.0.0",
 )
@@ -166,7 +166,7 @@ class PatentAppResponse(BaseModel):
 @app.get("/health")
 def health_check():
     """Basic health check endpoint."""
-    return {"status": "ok", "service": "StartStack API"}
+    return {"status": "ok", "service": "Legal Foundry API"}
 
 
 @app.post("/upload")
@@ -275,12 +275,12 @@ def export_pdf(request: ExportPdfRequest):
     buffer = io.BytesIO()
 
     def _add_footer(canvas, doc):
-        """Draw the StartStack footer with page number on every page."""
+        """Draw the Legal Foundry footer with page number on every page."""
         canvas.saveState()
         canvas.setFont("Helvetica", 8)
         canvas.setFillColor(colors.HexColor("#9CA3AF"))
         page_width, _ = LETTER
-        footer_text = f"StartStack  |  Page {doc.page}"
+        footer_text = f"Legal Foundry  |  Page {doc.page}"
         canvas.drawCentredString(page_width / 2, 0.5 * inch, footer_text)
         canvas.restoreState()
 
@@ -298,7 +298,7 @@ def export_pdf(request: ExportPdfRequest):
     styles = getSampleStyleSheet()
 
     title_style = ParagraphStyle(
-        "StartStackTitle",
+        "Legal FoundryTitle",
         parent=styles["Title"],
         fontName="Helvetica-Bold",
         fontSize=20,
@@ -308,7 +308,7 @@ def export_pdf(request: ExportPdfRequest):
     )
 
     body_style = ParagraphStyle(
-        "StartStackBody",
+        "Legal FoundryBody",
         parent=styles["Normal"],
         fontName="Helvetica",
         fontSize=11,
@@ -376,7 +376,7 @@ def generate_patent_app_endpoint(request: PatentAppRequest):
 @app.post("/chat", response_model=ChatResponse)
 def chat_endpoint(request: ChatRequest):
     """
-    Handle a follow-up chat message for any StartStack module.
+    Handle a follow-up chat message for any Legal Foundry module.
     """
     valid_modules = {"incorporation", "agreements", "patents", "fundraising"}
     if request.module not in valid_modules:

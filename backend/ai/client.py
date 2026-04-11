@@ -120,7 +120,7 @@ PROVIDER: _________________________  Date: __________""",
 DEMO_EMPLOYMENT_AGREEMENT = {
     "draft": """EMPLOYMENT AGREEMENT
 
-This Employment Agreement ("Agreement") is entered into between StartStack Inc. ("Company") and Alex Johnson ("Employee").
+This Employment Agreement ("Agreement") is entered into between Legal Foundry Inc. ("Company") and Alex Johnson ("Employee").
 
 1. POSITION & START DATE
 Employee is hired as Senior Software Engineer, reporting to the CTO. Start date: May 1, 2026.
@@ -175,7 +175,7 @@ DEMO_PATENT_GUIDANCE = {
 DEMO_TERMSHEET = {
     "termsheet": """TERM SHEET — SEED ROUND
 
-Company: StartStack Inc.
+Company: Legal Foundry Inc.
 Date: April 2026
 Round: Seed
 

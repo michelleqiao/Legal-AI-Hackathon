@@ -1,14 +1,14 @@
-# StartStack — Project Context for Claude
+# Legal Foundry — Project Context for Claude
 
 ## Company Vision
 
 We are building the **one-stop legal operating system for startups and SMBs**. The goal is to replace the need for expensive lawyers across every routine legal need a growing company has — incorporation, compliance, contracts, and international expansion.
 
-This is a platform play, not a single product. Every feature we build should ladder up to making StartStack the default legal infrastructure layer for startups from day zero through global scale.
+This is a platform play, not a single product. Every feature we build should ladder up to making Legal Foundry the default legal infrastructure layer for startups from day zero through global scale.
 
 ## The 5 Modules — What We're Building
 
-StartStack is a single web app with 5 legal modules. Each module follows the same pattern: ask the user questions → AI generates output (recommendation, draft document, or guidance) → user can chat to refine.
+Legal Foundry is a single web app with 5 legal modules. Each module follows the same pattern: ask the user questions → AI generates output (recommendation, draft document, or guidance) → user can chat to refine.
 
 ### Module 1: Incorporation
 1. Guided wizard (~8–10 questions)
