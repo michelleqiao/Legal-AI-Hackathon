@@ -5,17 +5,72 @@ import DocumentEditor from './DocumentEditor.jsx';
 
 // Base service fields — labels may be adjusted based on perspective
 const SERVICE_FIELDS_BASE = [
-  { id: 'client_name', label: 'Client name', labelProvider: "Client's name", placeholder: 'e.g. Acme Corp', type: 'text' },
-  { id: 'provider_name', label: 'Service provider name', labelProvider: 'Your name (as provider)', placeholder: 'e.g. Jane Smith / Your LLC', type: 'text' },
-  { id: 'scope_of_work', label: 'Scope of work', placeholder: 'Describe the services to be provided...', type: 'textarea' },
-  { id: 'payment_terms', label: 'Payment terms', placeholder: 'e.g. $5,000 due upon completion / $2,500 upfront + $2,500 on delivery', type: 'text' },
-  { id: 'timeline', label: 'Project timeline', placeholder: 'e.g. 6 weeks starting January 15', type: 'text' },
-  { id: 'ip_ownership', label: 'Who owns the work product?', placeholder: 'e.g. Client owns all deliverables / Provider retains ownership, grants license', type: 'text' },
+  {
+    id: 'client_name',
+    label: 'Client name',
+    labelProvider: "Client's name",
+    placeholder: 'e.g. Acme Corp',
+    type: 'text',
+    section: 'parties',
+  },
+  {
+    id: 'provider_name',
+    label: 'Service provider name',
+    labelProvider: 'Your name / company name (as provider)',
+    placeholder: 'e.g. Jane Smith Consulting LLC',
+    type: 'text',
+    section: 'parties',
+  },
+  {
+    id: 'provider_scope',
+    label: "Provider's scope of work",
+    labelProvider: 'Your scope of work (what you will deliver)',
+    placeholder: 'Describe what the provider will do, deliver, or produce — be specific (e.g. "Design and develop a 5-page marketing website including homepage, about, services, portfolio, and contact page")',
+    type: 'textarea',
+    section: 'scope',
+  },
+  {
+    id: 'client_scope',
+    label: "Client's obligations",
+    labelProvider: "Client's obligations to you",
+    placeholder: 'What must the client provide or do for the project to succeed? (e.g. "Provide brand assets, copy, and written feedback within 5 business days of each milestone")',
+    type: 'textarea',
+    section: 'scope',
+  },
+  {
+    id: 'start_date',
+    label: 'Project start date',
+    placeholder: 'e.g. May 1, 2025',
+    type: 'text',
+    section: 'timeline',
+  },
+  {
+    id: 'end_date',
+    label: 'Project end date / deadline',
+    placeholder: 'e.g. June 30, 2025 or "Upon completion of all milestones"',
+    type: 'text',
+    section: 'timeline',
+  },
+  {
+    id: 'payment_terms',
+    label: 'Payment terms',
+    placeholder: 'e.g. $5,000 total — $2,500 upfront, $2,500 on delivery. Net 15 invoice terms.',
+    type: 'text',
+    section: 'payment',
+  },
+  {
+    id: 'ip_ownership',
+    label: 'Who owns the work product?',
+    placeholder: 'e.g. Client owns all deliverables upon final payment / Provider retains ownership and grants a perpetual license to client',
+    type: 'text',
+    section: 'payment',
+  },
   {
     id: 'confidentiality',
     label: 'Is confidentiality needed?',
     type: 'select',
     options: ['Yes — mutual NDA', 'Yes — one-way (client to provider)', 'Yes — one-way (provider to client)', 'No'],
+    section: 'other',
   },
 ];
 
@@ -485,43 +540,86 @@ export default function AgreementsPage({ type, onBack }) {
         {error && <div style={commonStyles.errorBanner}>{error}</div>}
 
         <form onSubmit={handleSubmit}>
-          {fields.map((field) => (
-            <div key={field.id} style={commonStyles.formGroup}>
-              <label style={commonStyles.label} htmlFor={field.id}>
-                {field.label}
-              </label>
-              {field.type === 'textarea' ? (
-                <textarea
-                  id={field.id}
-                  style={commonStyles.textarea}
-                  placeholder={field.placeholder}
-                  value={formValues[field.id]}
-                  onChange={(e) => handleChange(field.id, e.target.value)}
-                />
-              ) : field.type === 'select' ? (
-                <select
-                  id={field.id}
-                  style={commonStyles.select}
-                  value={formValues[field.id]}
-                  onChange={(e) => handleChange(field.id, e.target.value)}
-                >
-                  <option value="">Select an option...</option>
-                  {field.options.map((opt) => (
-                    <option key={opt} value={opt}>{opt}</option>
-                  ))}
-                </select>
-              ) : (
-                <input
-                  id={field.id}
-                  type="text"
-                  style={commonStyles.input}
-                  placeholder={field.placeholder}
-                  value={formValues[field.id]}
-                  onChange={(e) => handleChange(field.id, e.target.value)}
-                />
-              )}
-            </div>
-          ))}
+          {isService ? (
+            // Service form: render with section headers
+            (() => {
+              const sectionMeta = {
+                parties: { label: '👤 Parties', desc: 'Who is involved in this agreement?' },
+                scope: { label: '📋 Scope of Work', desc: 'What each party is responsible for' },
+                timeline: { label: '📅 Timeline', desc: 'Start and end dates for the project' },
+                payment: { label: '💰 Payment & IP', desc: 'Compensation and ownership of deliverables' },
+                other: { label: '🔒 Additional Terms', desc: 'Confidentiality and other clauses' },
+              };
+              const seenSections = new Set();
+              return fields.map((field) => {
+                const showHeader = field.section && !seenSections.has(field.section);
+                if (field.section) seenSections.add(field.section);
+                const meta = field.section ? sectionMeta[field.section] : null;
+                return (
+                  <React.Fragment key={field.id}>
+                    {showHeader && meta && (
+                      <div style={{ margin: '28px 0 16px', paddingTop: seenSections.size > 1 ? '12px' : '0', borderTop: seenSections.size > 1 ? '1px solid #E2E8F0' : 'none' }}>
+                        <p style={{ fontSize: '15px', fontWeight: '700', color: '#1E293B', margin: '0 0 2px' }}>{meta.label}</p>
+                        <p style={{ fontSize: '13px', color: '#94A3B8', margin: '0 0 14px' }}>{meta.desc}</p>
+                      </div>
+                    )}
+                    <div style={commonStyles.formGroup}>
+                      <label style={commonStyles.label} htmlFor={field.id}>{field.label}</label>
+                      {field.type === 'textarea' ? (
+                        <textarea id={field.id} style={commonStyles.textarea} placeholder={field.placeholder} value={formValues[field.id]} onChange={(e) => handleChange(field.id, e.target.value)} />
+                      ) : field.type === 'select' ? (
+                        <select id={field.id} style={commonStyles.select} value={formValues[field.id]} onChange={(e) => handleChange(field.id, e.target.value)}>
+                          <option value="">Select an option...</option>
+                          {field.options.map((opt) => <option key={opt} value={opt}>{opt}</option>)}
+                        </select>
+                      ) : (
+                        <input id={field.id} type="text" style={commonStyles.input} placeholder={field.placeholder} value={formValues[field.id]} onChange={(e) => handleChange(field.id, e.target.value)} />
+                      )}
+                    </div>
+                  </React.Fragment>
+                );
+              });
+            })()
+          ) : (
+            // Employment form: plain fields
+            fields.map((field) => (
+              <div key={field.id} style={commonStyles.formGroup}>
+                <label style={commonStyles.label} htmlFor={field.id}>
+                  {field.label}
+                </label>
+                {field.type === 'textarea' ? (
+                  <textarea
+                    id={field.id}
+                    style={commonStyles.textarea}
+                    placeholder={field.placeholder}
+                    value={formValues[field.id]}
+                    onChange={(e) => handleChange(field.id, e.target.value)}
+                  />
+                ) : field.type === 'select' ? (
+                  <select
+                    id={field.id}
+                    style={commonStyles.select}
+                    value={formValues[field.id]}
+                    onChange={(e) => handleChange(field.id, e.target.value)}
+                  >
+                    <option value="">Select an option...</option>
+                    {field.options.map((opt) => (
+                      <option key={opt} value={opt}>{opt}</option>
+                    ))}
+                  </select>
+                ) : (
+                  <input
+                    id={field.id}
+                    type="text"
+                    style={commonStyles.input}
+                    placeholder={field.placeholder}
+                    value={formValues[field.id]}
+                    onChange={(e) => handleChange(field.id, e.target.value)}
+                  />
+                )}
+              </div>
+            ))
+          )}
 
           <button
             type="submit"

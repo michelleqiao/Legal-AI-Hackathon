@@ -4,6 +4,8 @@ import IncorporationPage from './components/IncorporationPage.jsx';
 import AgreementsPage from './components/AgreementsPage.jsx';
 import PatentsPage from './components/PatentsPage.jsx';
 import FundraisingPage from './components/FundraisingPage.jsx';
+import NDAPage from './components/NDAPage.jsx';
+import DocumentRepositoryPage from './components/DocumentRepositoryPage.jsx';
 
 export default function App() {
   const [currentPage, setCurrentPage] = useState('home');
@@ -27,11 +29,17 @@ export default function App() {
     case 'employment-agreements':
       return <AgreementsPage type="employment" onBack={goHome} />;
 
+    case 'nda':
+      return <NDAPage onBack={goHome} />;
+
     case 'patents':
       return <PatentsPage onBack={goHome} />;
 
     case 'fundraising':
       return <FundraisingPage onBack={goHome} />;
+
+    case 'documents':
+      return <DocumentRepositoryPage onBack={goHome} />;
 
     case 'home':
     default:
