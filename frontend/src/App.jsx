@@ -6,6 +6,18 @@ import PatentsPage from './components/PatentsPage.jsx';
 import FundraisingPage from './components/FundraisingPage.jsx';
 import NDAPage from './components/NDAPage.jsx';
 import DocumentRepositoryPage from './components/DocumentRepositoryPage.jsx';
+import FloatingChat from './components/FloatingChat.jsx';
+
+const PAGE_MODULES = {
+  incorporation: 'incorporation',
+  'service-agreements': 'service-agreements',
+  'employment-agreements': 'employment-agreements',
+  nda: 'nda',
+  patents: 'patents',
+  fundraising: 'fundraising',
+  documents: 'general',
+  home: 'general',
+};
 
 export default function App() {
   const [currentPage, setCurrentPage] = useState('home');
@@ -19,30 +31,31 @@ export default function App() {
     navigate('home');
   }
 
+  let pageContent;
   switch (currentPage) {
     case 'incorporation':
-      return <IncorporationPage onBack={goHome} />;
-
+      pageContent = <IncorporationPage onBack={goHome} />; break;
     case 'service-agreements':
-      return <AgreementsPage type="service" onBack={goHome} />;
-
+      pageContent = <AgreementsPage type="service" onBack={goHome} />; break;
     case 'employment-agreements':
-      return <AgreementsPage type="employment" onBack={goHome} />;
-
+      pageContent = <AgreementsPage type="employment" onBack={goHome} />; break;
     case 'nda':
-      return <NDAPage onBack={goHome} />;
-
+      pageContent = <NDAPage onBack={goHome} />; break;
     case 'patents':
-      return <PatentsPage onBack={goHome} />;
-
+      pageContent = <PatentsPage onBack={goHome} />; break;
     case 'fundraising':
-      return <FundraisingPage onBack={goHome} />;
-
+      pageContent = <FundraisingPage onBack={goHome} />; break;
     case 'documents':
-      return <DocumentRepositoryPage onBack={goHome} />;
-
+      pageContent = <DocumentRepositoryPage onBack={goHome} />; break;
     case 'home':
     default:
-      return <HomePage onNavigate={navigate} />;
+      pageContent = <HomePage onNavigate={navigate} />;
   }
+
+  return (
+    <>
+      {pageContent}
+      <FloatingChat currentModule={PAGE_MODULES[currentPage] || 'general'} />
+    </>
+  );
 }

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 const modules = [
   {
@@ -384,6 +384,106 @@ function AlertCard({ alert }) {
   );
 }
 
+const FAQ_ITEMS = [
+  {
+    q: "What's the difference between an LLC and a C-Corp?",
+    a: "A C-Corp is the standard structure for VC-backed startups — it allows multiple share classes, unlimited investors, and clean equity grants. An LLC is more flexible for tax purposes (pass-through taxation) and easier to maintain, but can't issue preferred stock or accommodate most institutional investors. If you plan to raise venture capital, choose C-Corp.",
+  },
+  {
+    q: "Do I need an 83(b) election? What happens if I miss it?",
+    a: "Yes — if you receive restricted stock with a vesting schedule, you must file an 83(b) election with the IRS within 30 days of the grant. There are NO extensions and NO grace periods. Missing it means you'll owe ordinary income tax on the full value of your stock as it vests — which can be hundreds of thousands of dollars at Series A valuations.",
+  },
+  {
+    q: "What is a BOI report and when do I need to file it?",
+    a: "The Beneficial Ownership Information (BOI) report is required by FinCEN (the US Treasury's financial crimes unit) for all corporations and LLCs. You must file within 90 days of formation. The penalty for missing it is $500/day, up to $10,000, with potential prison time for willful violation. It's free to file at fincen.gov.",
+  },
+  {
+    q: "Why do I keep hearing 'incorporate in Delaware'?",
+    a: "Delaware has the most mature corporate law in the US, a dedicated business court (Court of Chancery), and is the standard for VC-backed companies. Most institutional investors expect Delaware C-Corps. If you're in California, you'll still need to register as a foreign corporation in CA and pay California's $800/year minimum franchise tax.",
+  },
+  {
+    q: "What is a SAFE note and how does it work?",
+    a: "A SAFE (Simple Agreement for Future Equity) is an investment instrument — not a loan — that converts to equity at your next priced round. Investors give you money now in exchange for shares later, typically at a discount or subject to a valuation cap. Unlike a convertible note, a SAFE has no interest rate and no maturity date. Y Combinator's post-money SAFE is the most common version.",
+  },
+  {
+    q: "Do I need a 409A valuation before issuing stock options?",
+    a: "Yes — always. A 409A is an independent appraisal of your company's fair market value. You must have one before granting any stock options. If you grant options below FMV without a valid 409A, option holders face immediate ordinary income tax plus a 20% IRS excise tax. Get a 409A before your first option grants and refresh it annually or after any material event.",
+  },
+  {
+    q: "What's the California $800 minimum franchise tax?",
+    a: "Every entity operating in California — LLC or corporation — owes California a minimum of $800/year in franchise tax, even if you have zero revenue. For LLCs formed after Jan 1, 2021, the first year is waived. If you incorporate in Delaware but operate out of California, you must register as a foreign corporation in CA and pay the $800/year anyway — in addition to Delaware fees.",
+  },
+  {
+    q: "Can an S-Corp work for my startup?",
+    a: "S-Corps work well for small, bootstrapped businesses with US citizen owners, but they have hard eligibility limits: no more than 100 shareholders, only one class of stock, and all shareholders must be US citizens or permanent residents. These restrictions make S-Corps incompatible with VC funding or international co-founders. If you plan to raise outside capital, choose C-Corp.",
+  },
+];
+
+function FAQ() {
+  const [openIndex, setOpenIndex] = useState(null);
+
+  return (
+    <div style={{ background: '#ffffff', borderTop: '1px solid #E2E8F0', padding: '56px 24px' }}>
+      <div style={{ maxWidth: '720px', margin: '0 auto' }}>
+        <p style={{ fontSize: '14px', fontWeight: '600', color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '8px', marginTop: 0 }}>
+          FAQ
+        </p>
+        <h2 style={{ fontSize: '24px', fontWeight: '800', color: '#1E293B', margin: '0 0 32px' }}>
+          Common legal questions, answered plainly
+        </h2>
+        {FAQ_ITEMS.map((item, i) => (
+          <div
+            key={i}
+            style={{ borderBottom: '1px solid #F1F5F9', overflow: 'hidden' }}
+          >
+            <button
+              onClick={() => setOpenIndex(openIndex === i ? null : i)}
+              style={{
+                width: '100%',
+                background: 'none',
+                border: 'none',
+                padding: '18px 0',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                cursor: 'pointer',
+                textAlign: 'left',
+                gap: '16px',
+                fontFamily: 'inherit',
+              }}
+            >
+              <span style={{ fontSize: '15px', fontWeight: '600', color: '#1E293B', flex: 1 }}>
+                {item.q}
+              </span>
+              <span style={{
+                fontSize: '18px',
+                color: '#4F46E5',
+                flexShrink: 0,
+                transform: openIndex === i ? 'rotate(45deg)' : 'none',
+                transition: 'transform 0.2s ease',
+                lineHeight: 1,
+              }}>
+                +
+              </span>
+            </button>
+            {openIndex === i && (
+              <p style={{
+                fontSize: '14px',
+                color: '#64748B',
+                lineHeight: '1.75',
+                margin: '0 0 18px',
+                paddingRight: '32px',
+              }}>
+                {item.a}
+              </p>
+            )}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export default function HomePage({ onNavigate }) {
   return (
     <div style={styles.page}>
@@ -448,6 +548,8 @@ export default function HomePage({ onNavigate }) {
           </div>
         </div>
       </main>
+
+      <FAQ />
 
       <footer style={styles.footer}>
         Legal Foundry is not a law firm and does not provide legal advice. Always consult a qualified attorney for legal decisions.
