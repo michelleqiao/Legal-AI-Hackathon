@@ -17,6 +17,7 @@ from ai import (
     generate_termsheet,
     generate_filing_doc,
     generate_patent_app,
+    summarize_meeting,
     chat,
 )
 
@@ -157,6 +158,32 @@ class PatentAppResponse(BaseModel):
     document: str
     filing_instructions: List[str]
     filing_url: str
+
+
+class ActionItem(BaseModel):
+    task: str
+    owner: str
+    deadline: str
+
+
+class LegalFlag(BaseModel):
+    flag: str
+    urgency: str
+    context: str
+
+
+class MeetingSummaryRequest(BaseModel):
+    title: str = Field(..., description="Meeting title")
+    attendees: str = Field(default="", description="Comma-separated attendee names")
+    notes: str = Field(..., description="Raw meeting notes or transcript")
+
+
+class MeetingSummaryResponse(BaseModel):
+    tldr: str
+    decisions: List[str]
+    action_items: List[ActionItem]
+    legal_flags: List[LegalFlag]
+    follow_ups: List[str]
 
 
 # ---------------------------------------------------------------------------
@@ -395,3 +422,22 @@ def chat_endpoint(request: ChatRequest):
         message=request.message,
     )
     return ChatResponse(reply=reply)
+
+
+@app.post("/summarize-meeting", response_model=MeetingSummaryResponse)
+def summarize_meeting_endpoint(request: MeetingSummaryRequest):
+    """
+    Summarize meeting notes and extract decisions, action items, and legal flags.
+    """
+    result = summarize_meeting(
+        notes=request.notes,
+        title=request.title,
+        attendees=request.attendees,
+    )
+    return MeetingSummaryResponse(
+        tldr=result.get("tldr", ""),
+        decisions=result.get("decisions", []),
+        action_items=[ActionItem(**item) for item in result.get("action_items", [])],
+        legal_flags=[LegalFlag(**flag) for flag in result.get("legal_flags", [])],
+        follow_ups=result.get("follow_ups", []),
+    )

@@ -7,6 +7,7 @@ from .prompts import (
     PATENTS_SYSTEM_PROMPT,
     FUNDRAISING_SYSTEM_PROMPT,
     CHAT_SYSTEM_PROMPT,
+    MEETING_NOTES_SYSTEM_PROMPT,
 )
 
 MODEL = "claude-sonnet-4-6"
@@ -487,6 +488,59 @@ Date: {today}"""
         "filing_instructions": filing_instructions,
         "filing_url": "https://www.uspto.gov/patents/apply",
     }
+
+
+DEMO_MEETING_SUMMARY = {
+    "tldr": "The founding team met to discuss incorporation structure, the first engineering hire, and the upcoming seed raise. Key decisions were made on entity type and equity structure. Several legal action items were identified.",
+    "decisions": [
+        "Incorporate as a Delaware C-Corp before the first hire",
+        "Issue founder shares with 4-year vesting, 1-year cliff",
+        "Raise $750K on a SAFE with a $5M valuation cap",
+        "Engage a registered agent in Delaware before filing",
+    ],
+    "action_items": [
+        {"task": "File Articles of Incorporation with Delaware", "owner": "CEO", "deadline": "End of week"},
+        {"task": "Draft RSPA (Restricted Stock Purchase Agreement) for founder shares", "owner": "CEO", "deadline": "Before shares are issued"},
+        {"task": "File 83(b) election with IRS within 30 days of stock grant", "owner": "All founders", "deadline": "30 days from grant — NO exceptions"},
+        {"task": "Draft offer letter and PIIA for first engineering hire", "owner": "CEO", "deadline": "Before start date"},
+        {"task": "Get SAFE drafted for seed round", "owner": "Legal counsel", "deadline": "Before investor meetings"},
+    ],
+    "legal_flags": [
+        {
+            "flag": "83(b) Election Required",
+            "urgency": "high",
+            "context": "Founder shares with vesting were discussed. Each founder must file an 83(b) election with the IRS within 30 days of the stock grant — no extensions, no exceptions. Missing this can result in ordinary income tax on full vested value."
+        },
+        {
+            "flag": "IP Assignment Agreement Needed for New Hire",
+            "urgency": "high",
+            "context": "A new engineering hire was discussed. Before their start date, they must sign a PIIA (Proprietary Information and Inventions Assignment) to ensure all work belongs to the company."
+        },
+        {
+            "flag": "SAFE is a Security — Verify Investor Accreditation",
+            "urgency": "medium",
+            "context": "The team plans to raise via SAFE. SAFE notes are securities under federal law. Investors must be accredited (Reg D Rule 506(b)) or the offering must otherwise qualify for an exemption. Consult a securities attorney before accepting investment."
+        },
+    ],
+    "follow_ups": [
+        "Has a registered agent been selected for Delaware?",
+        "Do all founders have US citizenship/permanent residency? (Affects S-Corp eligibility, though C-Corp was chosen)",
+        "Will the engineering hire be a contractor or full-time employee? (AB5 risk if in California)",
+        "What is the 409A plan before issuing any stock options post-incorporation?",
+    ],
+}
+
+
+def summarize_meeting(notes: str, title: str, attendees: str) -> dict:
+    if _is_demo_mode():
+        return DEMO_MEETING_SUMMARY
+    user_message = (
+        f"Meeting title: {title}\n"
+        f"Attendees: {attendees}\n\n"
+        f"Meeting notes / transcript:\n{notes}"
+    )
+    raw = _call(MEETING_NOTES_SYSTEM_PROMPT, user_message)
+    return _parse_json(raw, DEMO_MEETING_SUMMARY)
 
 
 def chat(module: str, context: str, history: list, message: str) -> str:

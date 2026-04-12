@@ -26,6 +26,12 @@ const modules = [
     page: 'nda',
   },
   {
+    emoji: '🎙️',
+    title: 'Meeting Notes',
+    description: 'Record meetings, extract decisions and action items, and auto-flag legal risks.',
+    page: 'meeting-notes',
+  },
+  {
     emoji: '💡',
     title: 'Intellectual Property & Licenses',
     description: 'Understand what to protect and how to secure your patents, trademarks, and IP.',

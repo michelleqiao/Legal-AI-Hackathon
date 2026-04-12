@@ -126,7 +126,7 @@ const ALERTS = [
   },
 ];
 
-const CATEGORIES = ['All', 'Incorporation', 'NDA', 'Service', 'Employment', 'IP', 'Fundraising'];
+const CATEGORIES = ['All', 'Meeting Notes', 'Incorporation', 'NDA', 'Service', 'Employment', 'IP', 'Fundraising'];
 
 const alertColors = {
   urgent: { bg: '#FEF2F2', border: '#FECACA', badge: '#DC2626', badgeBg: '#FEE2E2', text: '#991B1B' },
@@ -340,9 +340,30 @@ function DocRow({ doc }) {
 export default function DocumentRepositoryPage({ onBack }) {
   const [activeFilter, setActiveFilter] = useState('All');
 
+  // Pull saved meeting notes from localStorage and merge with mock docs
+  const savedMeetings = React.useMemo(() => {
+    try {
+      return JSON.parse(localStorage.getItem('lf_meeting_notes') || '[]');
+    } catch { return []; }
+  }, []);
+
+  const allDocs = React.useMemo(() => {
+    const meetingDocs = savedMeetings.map((m, i) => ({
+      id: `meeting-${m.id || i}`,
+      icon: '🎙️',
+      name: m.title,
+      category: 'Meeting Notes',
+      date: m.date || 'Recently',
+      status: 'active',
+      expiresAt: null,
+      size: '—',
+    }));
+    return [...meetingDocs, ...MOCK_DOCUMENTS];
+  }, [savedMeetings]);
+
   const filtered = activeFilter === 'All'
-    ? MOCK_DOCUMENTS
-    : MOCK_DOCUMENTS.filter((d) => d.category === activeFilter);
+    ? allDocs
+    : allDocs.filter((d) => d.category === activeFilter);
 
   const urgentCount = ALERTS.filter((a) => a.type === 'urgent').length;
 
@@ -359,7 +380,7 @@ export default function DocumentRepositoryPage({ onBack }) {
       <main style={styles.main}>
         {/* Left: Documents */}
         <div>
-          <p style={styles.sectionTitle}>Your Documents ({MOCK_DOCUMENTS.length})</p>
+          <p style={styles.sectionTitle}>Your Documents ({allDocs.length})</p>
           <div style={styles.card}>
             <div style={styles.filterRow}>
               {CATEGORIES.map((cat) => (

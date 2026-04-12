@@ -50,3 +50,7 @@ export function generateFilingDoc(entity, state, formData) {
 export function generatePatentApp(guidance, filingDetails) {
   return post('/generate-patent-app', { guidance, filing_details: filingDetails });
 }
+
+export function summarizeMeeting(title, attendees, notes) {
+  return post('/summarize-meeting', { title, attendees, notes });
+}

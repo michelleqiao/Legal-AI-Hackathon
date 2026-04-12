@@ -5,6 +5,7 @@ from .client import (
     generate_termsheet,
     generate_filing_doc,
     generate_patent_app,
+    summarize_meeting,
     chat,
 )
 
@@ -15,5 +16,6 @@ __all__ = [
     "generate_termsheet",
     "generate_filing_doc",
     "generate_patent_app",
+    "summarize_meeting",
     "chat",
 ]
