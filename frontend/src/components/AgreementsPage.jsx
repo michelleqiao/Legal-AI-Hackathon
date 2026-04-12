@@ -98,44 +98,50 @@ const EMPLOYMENT_FIELDS = [
 const commonStyles = {
   page: {
     minHeight: '100vh',
-    background: '#ffffff',
-    fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
-    color: '#1E293B',
+    background: 'var(--lf-cream)',
+    fontFamily: "'DM Sans', sans-serif",
+    color: 'var(--lf-text)',
   },
   topBar: {
-    padding: '16px 24px',
-    borderBottom: '1px solid #E2E8F0',
+    background: 'var(--lf-white)',
+    borderBottom: '1px solid var(--lf-border)',
+    padding: '18px 40px',
     display: 'flex',
     alignItems: 'center',
-    gap: '12px',
+    gap: '16px',
   },
   backButton: {
     background: 'none',
     border: 'none',
-    color: '#4F46E5',
-    fontWeight: '600',
-    fontSize: '14px',
+    color: 'var(--lf-text-muted)',
+    fontSize: '13px',
+    fontWeight: '500',
     cursor: 'pointer',
-    padding: '0',
-    fontFamily: 'inherit',
+    padding: 0,
+    textTransform: 'uppercase',
+    letterSpacing: '0.06em',
+    fontFamily: "'DM Sans', sans-serif",
   },
   topBarTitle: {
-    fontSize: '16px',
-    fontWeight: '700',
-    color: '#1E293B',
+    fontFamily: "'Playfair Display', Georgia, serif",
+    fontSize: '18px',
+    fontWeight: '600',
+    color: 'var(--lf-navy)',
   },
   main: {
     maxWidth: '680px',
     margin: '0 auto',
-    padding: '48px 24px 80px',
+    padding: '48px 40px 80px',
   },
   pageTitle: {
-    fontSize: '26px',
-    fontWeight: '800',
+    fontFamily: "'Playfair Display', Georgia, serif",
+    fontSize: '28px',
+    fontWeight: '600',
+    color: 'var(--lf-navy)',
     marginBottom: '8px',
   },
   pageSubtitle: {
-    color: '#64748B',
+    color: 'var(--lf-text-muted)',
     fontSize: '15px',
     marginBottom: '36px',
   },
@@ -145,30 +151,31 @@ const commonStyles = {
   label: {
     display: 'block',
     fontSize: '13px',
-    fontWeight: '600',
-    color: '#374151',
+    fontWeight: '500',
+    color: 'var(--lf-text)',
     marginBottom: '6px',
+    fontFamily: "'DM Sans', sans-serif",
   },
   input: {
     width: '100%',
     padding: '10px 14px',
-    borderRadius: '8px',
-    border: '1px solid #CBD5E1',
+    border: '1px solid rgba(15,26,46,0.15)',
+    background: 'var(--lf-white)',
     fontSize: '14px',
-    color: '#1E293B',
+    color: 'var(--lf-text)',
     outline: 'none',
-    fontFamily: 'inherit',
+    fontFamily: "'DM Sans', sans-serif",
     boxSizing: 'border-box',
   },
   textarea: {
     width: '100%',
     padding: '10px 14px',
-    borderRadius: '8px',
-    border: '1px solid #CBD5E1',
+    border: '1px solid rgba(15,26,46,0.15)',
+    background: 'var(--lf-white)',
     fontSize: '14px',
-    color: '#1E293B',
+    color: 'var(--lf-text)',
     outline: 'none',
-    fontFamily: 'inherit',
+    fontFamily: "'DM Sans', sans-serif",
     resize: 'vertical',
     minHeight: '90px',
     boxSizing: 'border-box',
@@ -177,40 +184,37 @@ const commonStyles = {
   select: {
     width: '100%',
     padding: '10px 14px',
-    borderRadius: '8px',
-    border: '1px solid #CBD5E1',
+    border: '1px solid rgba(15,26,46,0.15)',
     fontSize: '14px',
-    color: '#1E293B',
+    color: 'var(--lf-text)',
     outline: 'none',
-    fontFamily: 'inherit',
-    background: '#ffffff',
+    fontFamily: "'DM Sans', sans-serif",
+    background: 'var(--lf-white)',
     boxSizing: 'border-box',
   },
   primaryButton: {
     padding: '12px 28px',
-    background: '#4F46E5',
+    background: 'var(--lf-navy)',
     border: 'none',
-    borderRadius: '8px',
     fontSize: '15px',
-    fontWeight: '600',
-    color: '#ffffff',
+    fontWeight: '500',
+    color: 'var(--lf-cream)',
     cursor: 'pointer',
-    fontFamily: 'inherit',
+    fontFamily: "'DM Sans', sans-serif",
   },
   primaryButtonDisabled: {
-    background: '#C7D2FE',
+    background: 'rgba(15,26,46,0.25)',
     cursor: 'not-allowed',
   },
   pdfButton: {
     padding: '10px 20px',
-    background: '#ffffff',
-    border: '2px solid #4F46E5',
-    borderRadius: '8px',
+    background: 'none',
+    border: '1px solid var(--lf-navy)',
     fontSize: '14px',
-    fontWeight: '600',
-    color: '#4F46E5',
+    fontWeight: '500',
+    color: 'var(--lf-navy)',
     cursor: 'pointer',
-    fontFamily: 'inherit',
+    fontFamily: "'DM Sans', sans-serif",
   },
   loadingState: {
     textAlign: 'center',
@@ -219,27 +223,26 @@ const commonStyles = {
   spinner: {
     width: '40px',
     height: '40px',
-    border: '3px solid #E2E8F0',
-    borderTop: '3px solid #4F46E5',
+    border: '3px solid rgba(15,26,46,0.08)',
+    borderTop: '3px solid var(--lf-warm)',
     borderRadius: '50%',
     margin: '0 auto 20px',
     animation: 'spin 0.8s linear infinite',
   },
   loadingText: {
-    color: '#64748B',
+    color: 'var(--lf-text-muted)',
     fontSize: '16px',
   },
   draftHeader: {
+    fontFamily: "'Playfair Display', Georgia, serif",
     fontSize: '18px',
-    fontWeight: '700',
+    fontWeight: '600',
     marginBottom: '16px',
-    color: '#1E293B',
-    fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
+    color: 'var(--lf-navy)',
   },
   errorBanner: {
+    borderLeft: '3px solid var(--lf-red-soft)',
     background: '#FEF2F2',
-    border: '1px solid #FECACA',
-    borderRadius: '8px',
     padding: '14px 16px',
     fontSize: '14px',
     color: '#DC2626',
@@ -247,14 +250,13 @@ const commonStyles = {
   },
   secondaryButton: {
     padding: '10px 20px',
-    background: '#ffffff',
-    border: '1px solid #CBD5E1',
-    borderRadius: '8px',
+    background: 'none',
+    border: '1px solid rgba(15,26,46,0.2)',
     fontSize: '14px',
-    fontWeight: '600',
-    color: '#64748B',
+    fontWeight: '500',
+    color: 'var(--lf-text-muted)',
     cursor: 'pointer',
-    fontFamily: 'inherit',
+    fontFamily: "'DM Sans', sans-serif",
     marginTop: '16px',
   },
   // Type selection cards
@@ -268,17 +270,16 @@ const commonStyles = {
     flex: '1',
     minWidth: '220px',
     padding: '24px 20px',
-    border: '2px solid #E2E8F0',
-    borderRadius: '12px',
-    background: '#F8FAFC',
+    border: '1px solid var(--lf-border)',
+    background: 'var(--lf-white)',
     cursor: 'pointer',
     textAlign: 'left',
-    fontFamily: 'inherit',
+    fontFamily: "'DM Sans', sans-serif",
     transition: 'border-color 0.15s, background 0.15s',
   },
   typeCardSelected: {
-    borderColor: '#4F46E5',
-    background: '#EEF2FF',
+    border: '1px solid var(--lf-warm)',
+    background: 'var(--lf-cream)',
   },
   typeCardIcon: {
     fontSize: '28px',
@@ -287,14 +288,15 @@ const commonStyles = {
   },
   typeCardTitle: {
     fontSize: '16px',
-    fontWeight: '700',
-    color: '#1E293B',
+    fontWeight: '600',
+    color: 'var(--lf-navy)',
     marginBottom: '6px',
     lineHeight: '1.3',
+    fontFamily: "'Playfair Display', Georgia, serif",
   },
   typeCardSubtitle: {
     fontSize: '13px',
-    color: '#64748B',
+    color: 'var(--lf-text-muted)',
     lineHeight: '1.5',
   },
 };
@@ -405,9 +407,9 @@ export default function AgreementsPage({ type, onBack }) {
           <button style={commonStyles.backButton} onClick={onBack}>← Back</button>
           <span style={commonStyles.topBarTitle}>{title}</span>
         </div>
-        <div style={{ maxWidth: '900px', margin: '0 auto', padding: '48px 24px 80px' }}>
+        <div style={{ maxWidth: '900px', margin: '0 auto', padding: '48px 40px 80px' }}>
           <h1 style={commonStyles.pageTitle}>Your draft is ready</h1>
-          <p style={{ color: '#64748B', fontSize: '15px', marginBottom: '24px' }}>
+          <p style={{ color: 'var(--lf-text-muted)', fontSize: '15px', marginBottom: '24px' }}>
             Review the agreement below. You can edit, comment, and download directly.
           </p>
 
@@ -452,7 +454,7 @@ export default function AgreementsPage({ type, onBack }) {
         </div>
         <div style={commonStyles.main}>
           <h1 style={commonStyles.pageTitle}>📝 Service Agreement</h1>
-          <p style={{ color: '#64748B', fontSize: '15px', marginBottom: '32px', lineHeight: '1.6' }}>
+          <p style={{ color: 'var(--lf-text-muted)', fontSize: '15px', marginBottom: '32px', lineHeight: '1.6' }}>
             Which best describes your situation?
           </p>
 
@@ -468,7 +470,7 @@ export default function AgreementsPage({ type, onBack }) {
               <span style={commonStyles.typeCardIcon}>🤝</span>
               <p style={{
                 ...commonStyles.typeCardTitle,
-                color: servicePerspective === 'client' ? '#4F46E5' : '#1E293B',
+                color: servicePerspective === 'client' ? 'var(--lf-navy)' : 'var(--lf-navy)',
               }}>
                 I need to hire someone
               </p>
@@ -488,7 +490,7 @@ export default function AgreementsPage({ type, onBack }) {
               <span style={commonStyles.typeCardIcon}>💼</span>
               <p style={{
                 ...commonStyles.typeCardTitle,
-                color: servicePerspective === 'provider' ? '#4F46E5' : '#1E293B',
+                color: servicePerspective === 'provider' ? 'var(--lf-navy)' : 'var(--lf-navy)',
               }}>
                 I'm being hired for work
               </p>
@@ -558,9 +560,9 @@ export default function AgreementsPage({ type, onBack }) {
                 return (
                   <React.Fragment key={field.id}>
                     {showHeader && meta && (
-                      <div style={{ margin: '28px 0 16px', paddingTop: seenSections.size > 1 ? '12px' : '0', borderTop: seenSections.size > 1 ? '1px solid #E2E8F0' : 'none' }}>
-                        <p style={{ fontSize: '15px', fontWeight: '700', color: '#1E293B', margin: '0 0 2px' }}>{meta.label}</p>
-                        <p style={{ fontSize: '13px', color: '#94A3B8', margin: '0 0 14px' }}>{meta.desc}</p>
+                      <div style={{ margin: '28px 0 16px', paddingTop: seenSections.size > 1 ? '12px' : '0', borderTop: seenSections.size > 1 ? '1px solid var(--lf-border)' : 'none' }}>
+                        <p style={{ fontSize: '11px', fontWeight: '500', color: 'var(--lf-warm)', margin: '0 0 2px', textTransform: 'uppercase', letterSpacing: '0.12em', fontFamily: "'DM Sans', sans-serif" }}>{meta.label}</p>
+                        <p style={{ fontSize: '13px', color: 'var(--lf-text-muted)', margin: '0 0 14px' }}>{meta.desc}</p>
                       </div>
                     )}
                     <div style={commonStyles.formGroup}>

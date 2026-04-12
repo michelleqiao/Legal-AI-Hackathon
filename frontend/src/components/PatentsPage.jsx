@@ -6,44 +6,50 @@ import DocumentEditor from './DocumentEditor.jsx';
 const styles = {
   page: {
     minHeight: '100vh',
-    background: '#ffffff',
-    fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
-    color: '#1E293B',
+    background: 'var(--lf-cream)',
+    fontFamily: "'DM Sans', sans-serif",
+    color: 'var(--lf-text)',
   },
   topBar: {
-    padding: '16px 24px',
-    borderBottom: '1px solid #E2E8F0',
+    background: 'var(--lf-white)',
+    borderBottom: '1px solid var(--lf-border)',
+    padding: '18px 40px',
     display: 'flex',
     alignItems: 'center',
-    gap: '12px',
+    gap: '16px',
   },
   backButton: {
     background: 'none',
     border: 'none',
-    color: '#4F46E5',
-    fontWeight: '600',
-    fontSize: '14px',
+    color: 'var(--lf-text-muted)',
+    fontSize: '13px',
+    fontWeight: '500',
     cursor: 'pointer',
-    padding: '0',
-    fontFamily: 'inherit',
+    padding: 0,
+    textTransform: 'uppercase',
+    letterSpacing: '0.06em',
+    fontFamily: "'DM Sans', sans-serif",
   },
   topBarTitle: {
-    fontSize: '16px',
-    fontWeight: '700',
-    color: '#1E293B',
+    fontFamily: "'Playfair Display', Georgia, serif",
+    fontSize: '18px',
+    fontWeight: '600',
+    color: 'var(--lf-navy)',
   },
   main: {
     maxWidth: '680px',
     margin: '0 auto',
-    padding: '48px 24px 80px',
+    padding: '48px 40px 80px',
   },
   pageTitle: {
-    fontSize: '26px',
-    fontWeight: '800',
+    fontFamily: "'Playfair Display', Georgia, serif",
+    fontSize: '28px',
+    fontWeight: '600',
+    color: 'var(--lf-navy)',
     marginBottom: '8px',
   },
   pageSubtitle: {
-    color: '#64748B',
+    color: 'var(--lf-text-muted)',
     fontSize: '15px',
     marginBottom: '28px',
     lineHeight: '1.6',
@@ -51,27 +57,29 @@ const styles = {
   label: {
     display: 'block',
     fontSize: '13px',
-    fontWeight: '600',
-    color: '#374151',
+    fontWeight: '500',
+    color: 'var(--lf-text)',
     marginBottom: '8px',
+    fontFamily: "'DM Sans', sans-serif",
   },
   labelLarge: {
     display: 'block',
     fontSize: '14px',
-    fontWeight: '600',
-    color: '#374151',
+    fontWeight: '500',
+    color: 'var(--lf-text)',
     marginBottom: '8px',
     lineHeight: '1.4',
+    fontFamily: "'DM Sans', sans-serif",
   },
   textarea: {
     width: '100%',
     padding: '14px 16px',
-    borderRadius: '10px',
-    border: '1px solid #CBD5E1',
+    border: '1px solid rgba(15,26,46,0.15)',
+    background: 'var(--lf-white)',
     fontSize: '14px',
-    color: '#1E293B',
+    color: 'var(--lf-text)',
     outline: 'none',
-    fontFamily: 'inherit',
+    fontFamily: "'DM Sans', sans-serif",
     resize: 'vertical',
     minHeight: '160px',
     boxSizing: 'border-box',
@@ -80,12 +88,12 @@ const styles = {
   textareaLarge: {
     width: '100%',
     padding: '14px 16px',
-    borderRadius: '10px',
-    border: '1px solid #CBD5E1',
+    border: '1px solid rgba(15,26,46,0.15)',
+    background: 'var(--lf-white)',
     fontSize: '14px',
-    color: '#1E293B',
+    color: 'var(--lf-text)',
     outline: 'none',
-    fontFamily: 'inherit',
+    fontFamily: "'DM Sans', sans-serif",
     resize: 'vertical',
     minHeight: '220px',
     boxSizing: 'border-box',
@@ -94,58 +102,55 @@ const styles = {
   input: {
     width: '100%',
     padding: '10px 14px',
-    borderRadius: '8px',
-    border: '1px solid #CBD5E1',
+    border: '1px solid rgba(15,26,46,0.15)',
+    background: 'var(--lf-white)',
     fontSize: '14px',
-    color: '#1E293B',
+    color: 'var(--lf-text)',
     outline: 'none',
-    fontFamily: 'inherit',
+    fontFamily: "'DM Sans', sans-serif",
     boxSizing: 'border-box',
   },
   select: {
     width: '100%',
     padding: '10px 14px',
-    borderRadius: '8px',
-    border: '1px solid #CBD5E1',
+    border: '1px solid rgba(15,26,46,0.15)',
     fontSize: '14px',
-    color: '#1E293B',
+    color: 'var(--lf-text)',
     outline: 'none',
-    fontFamily: 'inherit',
-    background: '#ffffff',
+    fontFamily: "'DM Sans', sans-serif",
+    background: 'var(--lf-white)',
     boxSizing: 'border-box',
   },
   charCount: {
     fontSize: '12px',
-    color: '#94A3B8',
+    color: 'var(--lf-text-muted)',
     textAlign: 'right',
     marginTop: '4px',
     marginBottom: '20px',
   },
   primaryButton: {
     padding: '12px 28px',
-    background: '#4F46E5',
+    background: 'var(--lf-navy)',
     border: 'none',
-    borderRadius: '8px',
     fontSize: '15px',
-    fontWeight: '600',
-    color: '#ffffff',
+    fontWeight: '500',
+    color: 'var(--lf-cream)',
     cursor: 'pointer',
-    fontFamily: 'inherit',
+    fontFamily: "'DM Sans', sans-serif",
   },
   primaryButtonDisabled: {
-    background: '#C7D2FE',
+    background: 'rgba(15,26,46,0.25)',
     cursor: 'not-allowed',
   },
   pdfButton: {
     padding: '10px 20px',
-    background: '#ffffff',
-    border: '2px solid #4F46E5',
-    borderRadius: '8px',
+    background: 'none',
+    border: '1px solid var(--lf-navy)',
     fontSize: '14px',
-    fontWeight: '600',
-    color: '#4F46E5',
+    fontWeight: '500',
+    color: 'var(--lf-navy)',
     cursor: 'pointer',
-    fontFamily: 'inherit',
+    fontFamily: "'DM Sans', sans-serif",
   },
   loadingState: {
     textAlign: 'center',
@@ -154,48 +159,47 @@ const styles = {
   spinner: {
     width: '40px',
     height: '40px',
-    border: '3px solid #E2E8F0',
-    borderTop: '3px solid #4F46E5',
+    border: '3px solid rgba(15,26,46,0.08)',
+    borderTop: '3px solid var(--lf-warm)',
     borderRadius: '50%',
     margin: '0 auto 20px',
     animation: 'spin 0.8s linear infinite',
   },
   loadingText: {
-    color: '#64748B',
+    color: 'var(--lf-text-muted)',
     fontSize: '16px',
   },
   resultSection: {
     marginBottom: '28px',
   },
   sectionCard: {
-    background: '#F8FAFC',
-    border: '1px solid #E2E8F0',
-    borderRadius: '12px',
+    background: 'var(--lf-white)',
+    border: '1px solid var(--lf-border)',
     padding: '24px',
     marginBottom: '16px',
   },
   sectionTitle: {
-    fontSize: '13px',
-    fontWeight: '700',
-    color: '#64748B',
+    fontSize: '11px',
+    fontWeight: '500',
+    color: 'var(--lf-warm)',
     textTransform: 'uppercase',
-    letterSpacing: '0.06em',
+    letterSpacing: '0.12em',
     marginBottom: '12px',
+    fontFamily: "'DM Sans', sans-serif",
   },
   protectionTypeBadge: {
     display: 'inline-block',
-    background: '#4F46E5',
-    color: '#ffffff',
-    borderRadius: '8px',
+    background: 'var(--lf-navy)',
+    color: 'var(--lf-cream)',
     padding: '8px 16px',
     fontSize: '16px',
-    fontWeight: '700',
+    fontWeight: '600',
     marginBottom: '12px',
   },
   bodyText: {
     fontSize: '14px',
     lineHeight: '1.7',
-    color: '#334155',
+    color: 'var(--lf-text)',
     whiteSpace: 'pre-wrap',
   },
   stepList: {
@@ -211,20 +215,19 @@ const styles = {
     gap: '12px',
     alignItems: 'flex-start',
     fontSize: '14px',
-    color: '#334155',
+    color: 'var(--lf-text)',
     lineHeight: '1.6',
   },
   stepNumber: {
     minWidth: '24px',
     height: '24px',
-    background: '#4F46E5',
-    color: '#ffffff',
-    borderRadius: '50%',
+    background: 'var(--lf-navy)',
+    color: 'var(--lf-cream)',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
     fontSize: '12px',
-    fontWeight: '700',
+    fontWeight: '600',
     flexShrink: '0',
     marginTop: '1px',
   },
@@ -236,8 +239,7 @@ const styles = {
     color: '#92400E',
     lineHeight: '1.6',
     background: '#FFFBEB',
-    border: '1px solid #FDE68A',
-    borderRadius: '8px',
+    borderLeft: '3px solid var(--lf-amber-soft)',
     padding: '12px 14px',
     marginBottom: '8px',
   },
@@ -246,9 +248,8 @@ const styles = {
     flexShrink: '0',
   },
   errorBanner: {
+    borderLeft: '3px solid var(--lf-red-soft)',
     background: '#FEF2F2',
-    border: '1px solid #FECACA',
-    borderRadius: '8px',
     padding: '14px 16px',
     fontSize: '14px',
     color: '#DC2626',
@@ -256,14 +257,13 @@ const styles = {
   },
   secondaryButton: {
     padding: '10px 20px',
-    background: '#ffffff',
-    border: '1px solid #CBD5E1',
-    borderRadius: '8px',
+    background: 'none',
+    border: '1px solid rgba(15,26,46,0.2)',
     fontSize: '14px',
-    fontWeight: '600',
-    color: '#64748B',
+    fontWeight: '500',
+    color: 'var(--lf-text-muted)',
     cursor: 'pointer',
-    fontFamily: 'inherit',
+    fontFamily: "'DM Sans', sans-serif",
     marginTop: '16px',
   },
   formGroup: {
@@ -278,31 +278,28 @@ const styles = {
   removeBtn: {
     padding: '8px 12px',
     background: '#FEF2F2',
-    border: '1px solid #FECACA',
-    borderRadius: '6px',
+    border: '1px solid rgba(220,38,38,0.3)',
     color: '#DC2626',
     fontSize: '13px',
-    fontWeight: '600',
+    fontWeight: '500',
     cursor: 'pointer',
-    fontFamily: 'inherit',
+    fontFamily: "'DM Sans', sans-serif",
     flexShrink: 0,
     marginTop: '0',
   },
   addBtn: {
     padding: '8px 16px',
-    background: '#F0FDF4',
-    border: '1px solid #BBF7D0',
-    borderRadius: '6px',
-    color: '#15803D',
+    background: 'none',
+    border: '1px solid rgba(15,26,46,0.2)',
+    color: 'var(--lf-text-muted)',
     fontSize: '13px',
-    fontWeight: '600',
+    fontWeight: '500',
     cursor: 'pointer',
-    fontFamily: 'inherit',
+    fontFamily: "'DM Sans', sans-serif",
   },
   noticeBanner: {
+    borderLeft: '3px solid var(--lf-amber-soft)',
     background: '#FFFBEB',
-    border: '1px solid #FDE68A',
-    borderRadius: '10px',
     padding: '16px 20px',
     fontSize: '14px',
     color: '#92400E',
@@ -456,11 +453,11 @@ export default function PatentsPage({ onBack }) {
           <button style={styles.backButton} onClick={onBack}>← Back</button>
           <span style={styles.topBarTitle}>💡 Patents & IP — Patent Application</span>
         </div>
-        <div style={{ maxWidth: '900px', margin: '0 auto', padding: '48px 24px 80px' }}>
-          <h1 style={{ fontSize: '26px', fontWeight: '800', marginBottom: '8px' }}>
+        <div style={{ maxWidth: '900px', margin: '0 auto', padding: '48px 40px 80px' }}>
+          <h1 style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: '28px', fontWeight: '600', color: 'var(--lf-navy)', marginBottom: '8px' }}>
             Your patent application is ready
           </h1>
-          <p style={{ color: '#64748B', fontSize: '15px', marginBottom: '24px' }}>
+          <p style={{ color: 'var(--lf-text-muted)', fontSize: '15px', marginBottom: '24px' }}>
             Review, edit, and download your provisional patent application below.
           </p>
 
@@ -496,10 +493,10 @@ export default function PatentsPage({ onBack }) {
           <span style={styles.topBarTitle}>💡 Patents & IP — Start Filing</span>
         </div>
         <div style={styles.main}>
-          <h1 style={{ fontSize: '26px', fontWeight: '800', marginBottom: '8px' }}>
+          <h1 style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: '28px', fontWeight: '600', color: 'var(--lf-navy)', marginBottom: '8px' }}>
             Start My Patent Filing
           </h1>
-          <p style={{ color: '#64748B', fontSize: '15px', marginBottom: '32px', lineHeight: '1.6' }}>
+          <p style={{ color: 'var(--lf-text-muted)', fontSize: '15px', marginBottom: '32px', lineHeight: '1.6' }}>
             Provide the details below to generate a Provisional Patent Application.
           </p>
 
@@ -649,7 +646,7 @@ export default function PatentsPage({ onBack }) {
         </div>
         <div style={styles.main}>
           <h1 style={styles.pageTitle}>Your IP guidance is ready</h1>
-          <p style={{ color: '#64748B', fontSize: '15px', marginBottom: '28px' }}>
+          <p style={{ color: 'var(--lf-text-muted)', fontSize: '15px', marginBottom: '28px' }}>
             Based on your description, here's what we recommend.
           </p>
 
@@ -713,14 +710,13 @@ export default function PatentsPage({ onBack }) {
           <div style={{
             marginTop: '28px',
             padding: '24px',
-            background: '#EEF2FF',
-            border: '1px solid #C7D2FE',
-            borderRadius: '12px',
+            background: 'var(--lf-navy)',
+            color: 'var(--lf-cream)',
           }}>
-            <p style={{ fontSize: '15px', fontWeight: '700', color: '#3730A3', marginBottom: '6px' }}>
+            <p style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: '15px', fontWeight: '600', color: 'var(--lf-cream)', marginBottom: '6px' }}>
               Ready to file?
             </p>
-            <p style={{ fontSize: '14px', color: '#4338CA', marginBottom: '16px', lineHeight: '1.5' }}>
+            <p style={{ fontSize: '14px', color: 'rgba(247,245,240,0.75)', marginBottom: '16px', lineHeight: '1.5' }}>
               Generate a Provisional Patent Application to establish your priority date at the USPTO.
             </p>
             <button

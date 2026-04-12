@@ -38,44 +38,50 @@ const FIELDS = [
 const styles = {
   page: {
     minHeight: '100vh',
-    background: '#ffffff',
-    fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
-    color: '#1E293B',
+    background: 'var(--lf-cream)',
+    fontFamily: "'DM Sans', sans-serif",
+    color: 'var(--lf-text)',
   },
   topBar: {
-    padding: '16px 24px',
-    borderBottom: '1px solid #E2E8F0',
+    background: 'var(--lf-white)',
+    borderBottom: '1px solid var(--lf-border)',
+    padding: '18px 40px',
     display: 'flex',
     alignItems: 'center',
-    gap: '12px',
+    gap: '16px',
   },
   backButton: {
     background: 'none',
     border: 'none',
-    color: '#4F46E5',
-    fontWeight: '600',
-    fontSize: '14px',
+    color: 'var(--lf-text-muted)',
+    fontSize: '13px',
+    fontWeight: '500',
     cursor: 'pointer',
-    padding: '0',
-    fontFamily: 'inherit',
+    padding: 0,
+    textTransform: 'uppercase',
+    letterSpacing: '0.06em',
+    fontFamily: "'DM Sans', sans-serif",
   },
   topBarTitle: {
-    fontSize: '16px',
-    fontWeight: '700',
-    color: '#1E293B',
+    fontFamily: "'Playfair Display', Georgia, serif",
+    fontSize: '18px',
+    fontWeight: '600',
+    color: 'var(--lf-navy)',
   },
   main: {
     maxWidth: '680px',
     margin: '0 auto',
-    padding: '48px 24px 80px',
+    padding: '48px 40px 80px',
   },
   pageTitle: {
-    fontSize: '26px',
-    fontWeight: '800',
+    fontFamily: "'Playfair Display', Georgia, serif",
+    fontSize: '28px',
+    fontWeight: '600',
+    color: 'var(--lf-navy)',
     marginBottom: '8px',
   },
   pageSubtitle: {
-    color: '#64748B',
+    color: 'var(--lf-text-muted)',
     fontSize: '15px',
     marginBottom: '36px',
     lineHeight: '1.6',
@@ -86,58 +92,56 @@ const styles = {
   label: {
     display: 'block',
     fontSize: '13px',
-    fontWeight: '600',
-    color: '#374151',
+    fontWeight: '500',
+    color: 'var(--lf-text)',
     marginBottom: '6px',
+    fontFamily: "'DM Sans', sans-serif",
   },
   input: {
     width: '100%',
     padding: '10px 14px',
-    borderRadius: '8px',
-    border: '1px solid #CBD5E1',
+    border: '1px solid rgba(15,26,46,0.15)',
+    background: 'var(--lf-white)',
     fontSize: '14px',
-    color: '#1E293B',
+    color: 'var(--lf-text)',
     outline: 'none',
-    fontFamily: 'inherit',
+    fontFamily: "'DM Sans', sans-serif",
     boxSizing: 'border-box',
   },
   select: {
     width: '100%',
     padding: '10px 14px',
-    borderRadius: '8px',
-    border: '1px solid #CBD5E1',
+    border: '1px solid rgba(15,26,46,0.15)',
     fontSize: '14px',
-    color: '#1E293B',
+    color: 'var(--lf-text)',
     outline: 'none',
-    fontFamily: 'inherit',
-    background: '#ffffff',
+    fontFamily: "'DM Sans', sans-serif",
+    background: 'var(--lf-white)',
     boxSizing: 'border-box',
   },
   primaryButton: {
     padding: '12px 28px',
-    background: '#4F46E5',
+    background: 'var(--lf-navy)',
     border: 'none',
-    borderRadius: '8px',
     fontSize: '15px',
-    fontWeight: '600',
-    color: '#ffffff',
+    fontWeight: '500',
+    color: 'var(--lf-cream)',
     cursor: 'pointer',
-    fontFamily: 'inherit',
+    fontFamily: "'DM Sans', sans-serif",
   },
   primaryButtonDisabled: {
-    background: '#C7D2FE',
+    background: 'rgba(15,26,46,0.25)',
     cursor: 'not-allowed',
   },
   pdfButton: {
     padding: '10px 20px',
-    background: '#ffffff',
-    border: '2px solid #4F46E5',
-    borderRadius: '8px',
+    background: 'none',
+    border: '1px solid var(--lf-navy)',
     fontSize: '14px',
-    fontWeight: '600',
-    color: '#4F46E5',
+    fontWeight: '500',
+    color: 'var(--lf-navy)',
     cursor: 'pointer',
-    fontFamily: 'inherit',
+    fontFamily: "'DM Sans', sans-serif",
   },
   loadingState: {
     textAlign: 'center',
@@ -146,60 +150,60 @@ const styles = {
   spinner: {
     width: '40px',
     height: '40px',
-    border: '3px solid #E2E8F0',
-    borderTop: '3px solid #4F46E5',
+    border: '3px solid rgba(15,26,46,0.08)',
+    borderTop: '3px solid var(--lf-warm)',
     borderRadius: '50%',
     margin: '0 auto 20px',
     animation: 'spin 0.8s linear infinite',
   },
   loadingText: {
-    color: '#64748B',
+    color: 'var(--lf-text-muted)',
     fontSize: '16px',
   },
   sectionCard: {
-    background: '#F8FAFC',
-    border: '1px solid #E2E8F0',
-    borderRadius: '12px',
+    background: 'var(--lf-white)',
+    border: '1px solid var(--lf-border)',
     padding: '24px',
     marginBottom: '16px',
   },
   sectionTitle: {
-    fontSize: '13px',
-    fontWeight: '700',
-    color: '#64748B',
+    fontSize: '11px',
+    fontWeight: '500',
+    color: 'var(--lf-warm)',
     textTransform: 'uppercase',
-    letterSpacing: '0.06em',
+    letterSpacing: '0.12em',
     marginBottom: '14px',
+    fontFamily: "'DM Sans', sans-serif",
   },
   termsheetBox: {
     whiteSpace: 'pre-wrap',
     fontSize: '13.5px',
     lineHeight: '1.75',
-    color: '#334155',
-    fontFamily: '"SF Mono", "Fira Code", "Courier New", monospace',
+    color: 'var(--lf-text)',
+    fontFamily: "'DM Sans', sans-serif",
     maxHeight: '400px',
     overflowY: 'auto',
   },
   clauseItem: {
-    borderBottom: '1px solid #E2E8F0',
+    borderBottom: '1px solid var(--lf-border)',
     paddingBottom: '16px',
     marginBottom: '16px',
   },
   clauseTitle: {
     fontSize: '14px',
-    fontWeight: '700',
-    color: '#1E293B',
+    fontWeight: '600',
+    color: 'var(--lf-navy)',
     marginBottom: '4px',
+    fontFamily: "'Playfair Display', Georgia, serif",
   },
   clauseExplanation: {
     fontSize: '13.5px',
     lineHeight: '1.6',
-    color: '#64748B',
+    color: 'var(--lf-text-muted)',
   },
   errorBanner: {
+    borderLeft: '3px solid var(--lf-red-soft)',
     background: '#FEF2F2',
-    border: '1px solid #FECACA',
-    borderRadius: '8px',
     padding: '14px 16px',
     fontSize: '14px',
     color: '#DC2626',
@@ -207,14 +211,13 @@ const styles = {
   },
   secondaryButton: {
     padding: '10px 20px',
-    background: '#ffffff',
-    border: '1px solid #CBD5E1',
-    borderRadius: '8px',
+    background: 'none',
+    border: '1px solid rgba(15,26,46,0.2)',
     fontSize: '14px',
-    fontWeight: '600',
-    color: '#64748B',
+    fontWeight: '500',
+    color: 'var(--lf-text-muted)',
     cursor: 'pointer',
-    fontFamily: 'inherit',
+    fontFamily: "'DM Sans', sans-serif",
     marginTop: '16px',
   },
 };
@@ -328,7 +331,7 @@ export default function FundraisingPage({ onBack }) {
         </div>
         <div style={styles.main}>
           <h1 style={styles.pageTitle}>Your term sheet is ready</h1>
-          <p style={{ color: '#64748B', fontSize: '15px', marginBottom: '28px' }}>
+          <p style={{ color: 'var(--lf-text-muted)', fontSize: '15px', marginBottom: '28px' }}>
             Review the summary and plain-English explanations below. Ask follow-up questions to explore scenarios.
           </p>
 
@@ -337,7 +340,7 @@ export default function FundraisingPage({ onBack }) {
             {termsheet ? (
               <div style={styles.termsheetBox}>{termsheet}</div>
             ) : (
-              <p style={{ color: '#94A3B8', fontSize: '14px' }}>No summary returned.</p>
+              <p style={{ color: 'var(--lf-text-muted)', fontSize: '14px' }}>No summary returned.</p>
             )}
           </div>
 
@@ -345,7 +348,7 @@ export default function FundraisingPage({ onBack }) {
             <div style={styles.sectionCard}>
               <p style={styles.sectionTitle}>Plain-English clause explanations</p>
               {clauses.map((clause, i) => (
-                <div key={i} style={{ ...styles.clauseItem, ...(i === clauses.length - 1 ? { borderBottom: 'none', marginBottom: 0 } : {}) }}>
+                <div key={i} style={{ ...styles.clauseItem, ...(i === clauses.length - 1 ? { borderBottom: 'none', paddingBottom: 0, marginBottom: 0 } : {}) }}>
                   <p style={styles.clauseTitle}>
                     {typeof clause === 'string'
                       ? `Clause ${i + 1}`

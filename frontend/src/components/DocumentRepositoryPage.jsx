@@ -129,28 +129,28 @@ const ALERTS = [
 const CATEGORIES = ['All', 'Meeting Notes', 'Incorporation', 'NDA', 'Service', 'Employment', 'IP', 'Fundraising'];
 
 const alertColors = {
-  urgent: { bg: '#FEF2F2', border: '#FECACA', badge: '#DC2626', badgeBg: '#FEE2E2', text: '#991B1B' },
-  warning: { bg: '#FFFBEB', border: '#FDE68A', badge: '#D97706', badgeBg: '#FEF3C7', text: '#92400E' },
-  info: { bg: '#F0F9FF', border: '#BAE6FD', badge: '#0284C7', badgeBg: '#E0F2FE', text: '#0C4A6E' },
+  urgent: { bg: '#FEF2F2', borderColor: '#DC2626', badge: '#DC2626', badgeBg: '#FEE2E2', text: '#991B1B' },
+  warning: { bg: '#FFFBEB', borderColor: '#D97706', badge: '#D97706', badgeBg: '#FEF3C7', text: '#92400E' },
+  info: { bg: 'var(--lf-white)', borderColor: 'var(--lf-warm)', badge: 'var(--lf-warm)', badgeBg: 'rgba(197,165,114,0.1)', text: 'var(--lf-navy)' },
 };
 
 const statusConfig = {
-  active: { color: '#16A34A', bg: '#DCFCE7', label: 'Active' },
-  expiring: { color: '#D97706', bg: '#FEF3C7', label: 'Expiring Soon' },
-  expired: { color: '#DC2626', bg: '#FEE2E2', label: 'Expired' },
+  active: { color: '#16A34A', bg: 'rgba(22,163,74,0.1)', label: 'Active' },
+  expiring: { color: '#D97706', bg: 'rgba(217,119,6,0.1)', label: 'Expiring Soon' },
+  expired: { color: '#DC2626', bg: 'rgba(220,38,38,0.1)', label: 'Expired' },
 };
 
 const styles = {
   page: {
     minHeight: '100vh',
-    background: '#F8FAFC',
-    fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
-    color: '#1E293B',
+    background: 'var(--lf-cream)',
+    fontFamily: "'DM Sans', sans-serif",
+    color: 'var(--lf-text)',
   },
   header: {
-    background: '#ffffff',
-    borderBottom: '1px solid #E2E8F0',
-    padding: '20px 32px',
+    background: 'var(--lf-white)',
+    borderBottom: '1px solid var(--lf-border)',
+    padding: '18px 40px',
     display: 'flex',
     alignItems: 'center',
     gap: '16px',
@@ -158,37 +158,39 @@ const styles = {
   backBtn: {
     background: 'none',
     border: 'none',
-    color: '#64748B',
-    fontSize: '14px',
+    color: 'var(--lf-text-muted)',
+    fontSize: '13px',
     cursor: 'pointer',
-    padding: '0',
+    padding: 0,
     fontWeight: '500',
+    textTransform: 'uppercase',
+    letterSpacing: '0.06em',
+    fontFamily: "'DM Sans', sans-serif",
   },
-  title: { fontSize: '20px', fontWeight: '700', color: '#1E293B', margin: '0' },
-  subtitle: { fontSize: '14px', color: '#64748B', margin: '4px 0 0' },
+  title: { fontFamily: "'Playfair Display', Georgia, serif", fontSize: '18px', fontWeight: '600', color: 'var(--lf-navy)', margin: '0' },
+  subtitle: { fontSize: '14px', color: 'var(--lf-text-muted)', margin: '4px 0 0' },
   main: {
     maxWidth: '1100px',
     margin: '0 auto',
-    padding: '36px 24px 80px',
+    padding: '36px 40px 80px',
     display: 'grid',
     gridTemplateColumns: '1fr 380px',
     gap: '28px',
     alignItems: 'start',
   },
   sectionTitle: {
-    fontSize: '13px',
-    fontWeight: '600',
-    color: '#94A3B8',
+    fontSize: '11px',
+    fontWeight: '500',
+    color: 'var(--lf-warm)',
     textTransform: 'uppercase',
-    letterSpacing: '0.07em',
+    letterSpacing: '0.12em',
     margin: '0 0 16px',
+    fontFamily: "'DM Sans', sans-serif",
   },
   card: {
-    background: '#ffffff',
-    borderRadius: '12px',
-    border: '1px solid #E2E8F0',
+    background: 'var(--lf-white)',
+    border: '1px solid var(--lf-border)',
     overflow: 'hidden',
-    boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
   },
   cardPad: { padding: '20px 24px' },
   filterRow: {
@@ -196,75 +198,74 @@ const styles = {
     alignItems: 'center',
     gap: '8px',
     padding: '16px 24px',
-    borderBottom: '1px solid #F1F5F9',
+    borderBottom: '1px solid var(--lf-border)',
     flexWrap: 'wrap',
   },
   filterChip: {
     fontSize: '13px',
     fontWeight: '500',
     padding: '5px 12px',
-    borderRadius: '999px',
-    border: '1px solid #E2E8F0',
-    background: '#F8FAFC',
+    border: '1px solid var(--lf-border)',
+    background: 'var(--lf-cream)',
     cursor: 'pointer',
-    color: '#64748B',
+    color: 'var(--lf-text-muted)',
+    fontFamily: "'DM Sans', sans-serif",
   },
   filterChipActive: {
-    background: '#EEF2FF',
-    border: '1px solid #C7D2FE',
-    color: '#4F46E5',
-    fontWeight: '600',
+    background: 'var(--lf-navy)',
+    border: '1px solid var(--lf-navy)',
+    color: 'var(--lf-cream)',
+    fontWeight: '500',
   },
   uploadBtn: {
     marginLeft: 'auto',
-    background: '#4F46E5',
-    color: '#ffffff',
+    background: 'var(--lf-navy)',
+    color: 'var(--lf-cream)',
     border: 'none',
-    borderRadius: '8px',
     padding: '7px 16px',
     fontSize: '13px',
-    fontWeight: '600',
+    fontWeight: '500',
     cursor: 'pointer',
+    fontFamily: "'DM Sans', sans-serif",
   },
   docRow: {
     display: 'flex',
     alignItems: 'center',
     gap: '14px',
     padding: '14px 24px',
-    borderBottom: '1px solid #F8FAFC',
+    borderBottom: '1px solid var(--lf-border)',
     transition: 'background 0.1s ease',
     cursor: 'pointer',
   },
   docIcon: { fontSize: '22px', flexShrink: 0 },
   docBody: { flex: 1, minWidth: 0 },
-  docName: { fontSize: '14px', fontWeight: '600', color: '#1E293B', margin: '0 0 2px' },
-  docMeta: { fontSize: '12px', color: '#94A3B8', margin: '0' },
+  docName: { fontSize: '14px', fontWeight: '500', color: 'var(--lf-text)', margin: '0 0 2px' },
+  docMeta: { fontSize: '12px', color: 'var(--lf-text-muted)', margin: '0' },
   docRight: { display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '5px' },
   statusBadge: {
     fontSize: '11px',
-    fontWeight: '600',
+    fontWeight: '500',
     padding: '2px 8px',
-    borderRadius: '999px',
+    fontFamily: "'DM Sans', sans-serif",
   },
   catTag: {
     fontSize: '11px',
-    color: '#6366F1',
-    background: '#EEF2FF',
+    color: 'var(--lf-navy)',
+    background: 'rgba(15,26,46,0.06)',
     padding: '2px 7px',
-    borderRadius: '999px',
-    fontWeight: '600',
+    fontWeight: '500',
+    fontFamily: "'DM Sans', sans-serif",
   },
   emptyState: {
     padding: '48px 24px',
     textAlign: 'center',
-    color: '#94A3B8',
+    color: 'var(--lf-text-muted)',
     fontSize: '14px',
   },
   alertCard: {
-    borderRadius: '10px',
     padding: '14px 16px',
     marginBottom: '10px',
-    border: '1px solid',
+    borderLeft: '3px solid',
   },
   alertHeader: {
     display: 'flex',
@@ -272,26 +273,27 @@ const styles = {
     gap: '10px',
     marginBottom: '6px',
   },
-  alertTitle: { fontSize: '13px', fontWeight: '600', margin: '0' },
-  alertDetail: { fontSize: '12px', color: '#64748B', margin: '0 0 8px', lineHeight: '1.5' },
+  alertTitle: { fontSize: '13px', fontWeight: '600', margin: '0', fontFamily: "'DM Sans', sans-serif" },
+  alertDetail: { fontSize: '12px', color: 'var(--lf-text-muted)', margin: '0 0 8px', lineHeight: '1.5' },
   alertFooter: { display: 'flex', alignItems: 'center', justifyContent: 'space-between' },
-  alertBadge: { fontSize: '11px', fontWeight: '600', padding: '2px 8px', borderRadius: '999px' },
+  alertBadge: { fontSize: '11px', fontWeight: '500', padding: '2px 8px', fontFamily: "'DM Sans', sans-serif" },
   alertLink: {
     fontSize: '12px',
-    fontWeight: '600',
-    color: '#4F46E5',
+    fontWeight: '500',
+    color: 'var(--lf-warm)',
     background: 'none',
     border: 'none',
     cursor: 'pointer',
     padding: '0',
     textDecoration: 'underline',
+    fontFamily: "'DM Sans', sans-serif",
   },
 };
 
 function AlertCard({ alert }) {
   const c = alertColors[alert.type];
   return (
-    <div style={{ ...styles.alertCard, background: c.bg, borderColor: c.border }}>
+    <div style={{ ...styles.alertCard, background: c.bg, borderLeftColor: c.borderColor }}>
       <div style={styles.alertHeader}>
         <span style={{ fontSize: '16px' }}>{alert.icon}</span>
         <p style={{ ...styles.alertTitle, color: c.text }}>{alert.title}</p>
@@ -316,7 +318,7 @@ function DocRow({ doc }) {
   const sc = statusConfig[doc.status];
   return (
     <div
-      style={{ ...styles.docRow, background: hovered ? '#F8FAFC' : '#ffffff' }}
+      style={{ ...styles.docRow, background: hovered ? 'var(--lf-cream)' : 'var(--lf-white)' }}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
     >
@@ -415,11 +417,11 @@ export default function DocumentRepositoryPage({ onBack }) {
                 background: '#DC2626',
                 color: '#fff',
                 fontSize: '11px',
-                fontWeight: '700',
+                fontWeight: '500',
                 padding: '1px 7px',
-                borderRadius: '999px',
                 marginLeft: '8px',
                 verticalAlign: 'middle',
+                fontFamily: "'DM Sans', sans-serif",
               }}>
                 {urgentCount} urgent
               </span>

@@ -90,39 +90,40 @@ const FILING_FIELDS = [
 const styles = {
   page: {
     minHeight: '100vh',
-    background: '#ffffff',
-    fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
-    color: '#1E293B',
+    background: 'var(--lf-cream)',
+    fontFamily: "'DM Sans', sans-serif",
+    color: 'var(--lf-text)',
   },
   topBar: {
-    padding: '16px 24px',
-    borderBottom: '1px solid #E2E8F0',
+    background: 'var(--lf-white)',
+    borderBottom: '1px solid var(--lf-border)',
+    padding: '18px 40px',
     display: 'flex',
     alignItems: 'center',
-    gap: '12px',
+    gap: '16px',
   },
   backButton: {
     background: 'none',
     border: 'none',
-    color: '#4F46E5',
-    fontWeight: '600',
-    fontSize: '14px',
+    color: 'var(--lf-text-muted)',
+    fontSize: '13px',
+    fontWeight: '500',
     cursor: 'pointer',
-    padding: '0',
-    display: 'flex',
-    alignItems: 'center',
-    gap: '4px',
-    fontFamily: 'inherit',
+    padding: 0,
+    textTransform: 'uppercase',
+    letterSpacing: '0.06em',
+    fontFamily: "'DM Sans', sans-serif",
   },
   topBarTitle: {
-    fontSize: '16px',
-    fontWeight: '700',
-    color: '#1E293B',
+    fontFamily: "'Playfair Display', Georgia, serif",
+    fontSize: '18px',
+    fontWeight: '600',
+    color: 'var(--lf-navy)',
   },
   main: {
-    maxWidth: '640px',
+    maxWidth: '680px',
     margin: '0 auto',
-    padding: '48px 24px 80px',
+    padding: '48px 40px 80px',
   },
   progressBarWrap: {
     marginBottom: '40px',
@@ -131,25 +132,24 @@ const styles = {
     display: 'flex',
     justifyContent: 'space-between',
     fontSize: '12px',
-    color: '#94A3B8',
+    color: 'var(--lf-text-muted)',
     marginBottom: '8px',
   },
   progressTrack: {
-    height: '6px',
-    background: '#E2E8F0',
-    borderRadius: '99px',
+    height: '3px',
+    background: 'rgba(15,26,46,0.08)',
     overflow: 'hidden',
   },
   progressFill: {
     height: '100%',
-    background: '#4F46E5',
-    borderRadius: '99px',
+    background: 'var(--lf-warm)',
     transition: 'width 0.3s ease',
   },
   questionLabel: {
-    fontSize: '22px',
-    fontWeight: '700',
-    color: '#1E293B',
+    fontFamily: "'Playfair Display', Georgia, serif",
+    fontSize: '28px',
+    fontWeight: '600',
+    color: 'var(--lf-navy)',
     marginBottom: '28px',
     lineHeight: '1.4',
   },
@@ -158,21 +158,20 @@ const styles = {
     width: '100%',
     padding: '16px 20px',
     marginBottom: '12px',
-    background: '#F8FAFC',
-    border: '2px solid #E2E8F0',
-    borderRadius: '10px',
+    background: 'var(--lf-white)',
+    border: '1px solid var(--lf-border)',
     fontSize: '15px',
     fontWeight: '500',
-    color: '#1E293B',
+    color: 'var(--lf-text)',
     cursor: 'pointer',
     textAlign: 'left',
-    fontFamily: 'inherit',
+    fontFamily: "'DM Sans', sans-serif",
     transition: 'border-color 0.15s ease, background 0.15s ease',
   },
   optionButtonSelected: {
-    borderColor: '#4F46E5',
-    background: '#EEF2FF',
-    color: '#4F46E5',
+    background: 'var(--lf-cream)',
+    border: '1px solid var(--lf-warm)',
+    color: 'var(--lf-navy)',
   },
   navRow: {
     display: 'flex',
@@ -181,51 +180,47 @@ const styles = {
   },
   secondaryButton: {
     padding: '10px 20px',
-    background: '#ffffff',
-    border: '1px solid #CBD5E1',
-    borderRadius: '8px',
+    background: 'none',
+    border: '1px solid rgba(15,26,46,0.2)',
     fontSize: '14px',
-    fontWeight: '600',
-    color: '#64748B',
+    fontWeight: '500',
+    color: 'var(--lf-text-muted)',
     cursor: 'pointer',
-    fontFamily: 'inherit',
+    fontFamily: "'DM Sans', sans-serif",
   },
   primaryButton: {
     padding: '10px 24px',
-    background: '#4F46E5',
+    background: 'var(--lf-navy)',
     border: 'none',
-    borderRadius: '8px',
     fontSize: '14px',
-    fontWeight: '600',
-    color: '#ffffff',
+    fontWeight: '500',
+    color: 'var(--lf-cream)',
     cursor: 'pointer',
-    fontFamily: 'inherit',
+    fontFamily: "'DM Sans', sans-serif",
   },
   primaryButtonLarge: {
     padding: '12px 28px',
-    background: '#4F46E5',
+    background: 'var(--lf-navy)',
     border: 'none',
-    borderRadius: '8px',
     fontSize: '15px',
-    fontWeight: '600',
-    color: '#ffffff',
+    fontWeight: '500',
+    color: 'var(--lf-cream)',
     cursor: 'pointer',
-    fontFamily: 'inherit',
+    fontFamily: "'DM Sans', sans-serif",
   },
   primaryButtonDisabled: {
-    background: '#C7D2FE',
+    background: 'rgba(15,26,46,0.25)',
     cursor: 'not-allowed',
   },
   pdfButton: {
     padding: '10px 20px',
-    background: '#ffffff',
-    border: '2px solid #4F46E5',
-    borderRadius: '8px',
+    background: 'none',
+    border: '1px solid var(--lf-navy)',
     fontSize: '14px',
-    fontWeight: '600',
-    color: '#4F46E5',
+    fontWeight: '500',
+    color: 'var(--lf-navy)',
     cursor: 'pointer',
-    fontFamily: 'inherit',
+    fontFamily: "'DM Sans', sans-serif",
   },
   loadingState: {
     textAlign: 'center',
@@ -234,47 +229,45 @@ const styles = {
   spinner: {
     width: '40px',
     height: '40px',
-    border: '3px solid #E2E8F0',
-    borderTop: '3px solid #4F46E5',
+    border: '3px solid rgba(15,26,46,0.08)',
+    borderTop: '3px solid var(--lf-warm)',
     borderRadius: '50%',
     margin: '0 auto 20px',
     animation: 'spin 0.8s linear infinite',
   },
   loadingText: {
-    color: '#64748B',
+    color: 'var(--lf-text-muted)',
     fontSize: '16px',
   },
   resultCard: {
-    background: '#F8FAFC',
-    border: '1px solid #E2E8F0',
-    borderRadius: '12px',
+    background: 'var(--lf-white)',
+    border: '1px solid var(--lf-border)',
     padding: '32px',
     marginBottom: '24px',
   },
   entityBadge: {
     display: 'inline-block',
-    background: '#4F46E5',
-    color: '#ffffff',
-    borderRadius: '8px',
+    background: 'var(--lf-navy)',
+    color: 'var(--lf-cream)',
     padding: '10px 20px',
     fontSize: '20px',
-    fontWeight: '800',
+    fontWeight: '700',
     marginBottom: '20px',
     letterSpacing: '-0.3px',
   },
   resultExplanation: {
     fontSize: '15px',
     lineHeight: '1.7',
-    color: '#334155',
+    color: 'var(--lf-text)',
     marginBottom: '24px',
     whiteSpace: 'pre-wrap',
   },
   flagsHeader: {
-    fontSize: '13px',
-    fontWeight: '700',
-    color: '#64748B',
+    fontSize: '11px',
+    fontWeight: '500',
+    color: 'var(--lf-warm)',
     textTransform: 'uppercase',
-    letterSpacing: '0.06em',
+    letterSpacing: '0.12em',
     marginBottom: '12px',
   },
   flagItem: {
@@ -282,22 +275,20 @@ const styles = {
     gap: '10px',
     alignItems: 'flex-start',
     fontSize: '14px',
-    color: '#334155',
+    color: 'var(--lf-text)',
     lineHeight: '1.6',
     marginBottom: '8px',
   },
   flagDot: {
     width: '6px',
     height: '6px',
-    borderRadius: '50%',
-    background: '#F59E0B',
+    background: 'var(--lf-warm)',
     marginTop: '7px',
     flexShrink: '0',
   },
   errorBanner: {
+    borderLeft: '3px solid var(--lf-red-soft)',
     background: '#FEF2F2',
-    border: '1px solid #FECACA',
-    borderRadius: '8px',
     padding: '14px 16px',
     fontSize: '14px',
     color: '#DC2626',
@@ -309,31 +300,31 @@ const styles = {
   label: {
     display: 'block',
     fontSize: '13px',
-    fontWeight: '600',
-    color: '#374151',
+    fontWeight: '500',
+    color: 'var(--lf-text)',
     marginBottom: '6px',
+    fontFamily: "'DM Sans', sans-serif",
   },
   hint: {
     fontSize: '12px',
-    color: '#94A3B8',
+    color: 'var(--lf-text-muted)',
     marginBottom: '6px',
     display: 'block',
   },
   input: {
     width: '100%',
     padding: '10px 14px',
-    borderRadius: '8px',
-    border: '1px solid #CBD5E1',
+    border: '1px solid rgba(15,26,46,0.15)',
+    background: 'var(--lf-white)',
     fontSize: '14px',
-    color: '#1E293B',
+    color: 'var(--lf-text)',
     outline: 'none',
-    fontFamily: 'inherit',
+    fontFamily: "'DM Sans', sans-serif",
     boxSizing: 'border-box',
   },
   noticeBanner: {
+    borderLeft: '3px solid var(--lf-amber-soft)',
     background: '#FFFBEB',
-    border: '1px solid #FDE68A',
-    borderRadius: '10px',
     padding: '16px 20px',
     fontSize: '14px',
     color: '#92400E',
@@ -510,11 +501,11 @@ export default function IncorporationPage({ onBack }) {
           <button style={styles.backButton} onClick={onBack}>← Back</button>
           <span style={styles.topBarTitle}>⚖️ Incorporation — Filing Documents</span>
         </div>
-        <div style={{ maxWidth: '900px', margin: '0 auto', padding: '48px 24px 80px' }}>
-          <h1 style={{ fontSize: '26px', fontWeight: '800', marginBottom: '8px' }}>
+        <div style={{ maxWidth: '900px', margin: '0 auto', padding: '48px 40px 80px' }}>
+          <h1 style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: '28px', fontWeight: '600', color: 'var(--lf-navy)', marginBottom: '8px' }}>
             Your filing documents are ready
           </h1>
-          <p style={{ color: '#64748B', fontSize: '15px', marginBottom: '24px' }}>
+          <p style={{ color: 'var(--lf-text-muted)', fontSize: '15px', marginBottom: '24px' }}>
             Review, edit, and download your incorporation documents below.
           </p>
 
@@ -550,10 +541,10 @@ export default function IncorporationPage({ onBack }) {
           <span style={styles.topBarTitle}>⚖️ Incorporation — File My Company</span>
         </div>
         <div style={styles.main}>
-          <h1 style={{ fontSize: '26px', fontWeight: '800', marginBottom: '8px' }}>
+          <h1 style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: '28px', fontWeight: '600', color: 'var(--lf-navy)', marginBottom: '8px' }}>
             File My Company
           </h1>
-          <p style={{ color: '#64748B', fontSize: '15px', marginBottom: '32px', lineHeight: '1.6' }}>
+          <p style={{ color: 'var(--lf-text-muted)', fontSize: '15px', marginBottom: '32px', lineHeight: '1.6' }}>
             Provide the details below to generate your incorporation documents. We'll create a Delaware Certificate of Incorporation ready to file.
           </p>
 
@@ -627,10 +618,10 @@ export default function IncorporationPage({ onBack }) {
           <span style={styles.topBarTitle}>⚖️ Incorporation</span>
         </div>
         <div style={styles.main}>
-          <h1 style={{ fontSize: '26px', fontWeight: '800', marginBottom: '8px' }}>
+          <h1 style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: '28px', fontWeight: '600', color: 'var(--lf-navy)', marginBottom: '8px' }}>
             Your recommendation is ready
           </h1>
-          <p style={{ color: '#64748B', fontSize: '15px', marginBottom: '28px' }}>
+          <p style={{ color: 'var(--lf-text-muted)', fontSize: '15px', marginBottom: '28px' }}>
             Based on your answers, here's what we suggest.
           </p>
 
@@ -682,14 +673,13 @@ export default function IncorporationPage({ onBack }) {
           <div style={{
             marginTop: '28px',
             padding: '24px',
-            background: '#EEF2FF',
-            border: '1px solid #C7D2FE',
-            borderRadius: '12px',
+            background: 'var(--lf-navy)',
+            color: 'var(--lf-cream)',
           }}>
-            <p style={{ fontSize: '15px', fontWeight: '700', color: '#3730A3', marginBottom: '6px' }}>
+            <p style={{ fontSize: '15px', fontWeight: '600', color: 'var(--lf-cream)', marginBottom: '6px', fontFamily: "'Playfair Display', Georgia, serif" }}>
               Ready to make it official?
             </p>
-            <p style={{ fontSize: '14px', color: '#4338CA', marginBottom: '16px', lineHeight: '1.5' }}>
+            <p style={{ fontSize: '14px', color: 'rgba(247,245,240,0.75)', marginBottom: '16px', lineHeight: '1.5' }}>
               Generate your Delaware Certificate of Incorporation and get ready to file.
             </p>
             <button

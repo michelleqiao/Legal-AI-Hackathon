@@ -11,116 +11,121 @@ const URGENCY_COLORS = {
 const styles = {
   page: {
     minHeight: '100vh',
-    background: '#F8FAFC',
-    fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-    color: '#1E293B',
+    background: 'var(--lf-cream)',
+    fontFamily: "'DM Sans', sans-serif",
+    color: 'var(--lf-text)',
   },
   header: {
-    background: '#ffffff',
-    borderBottom: '1px solid #E2E8F0',
-    padding: '20px 32px',
+    background: 'var(--lf-white)',
+    borderBottom: '1px solid var(--lf-border)',
+    padding: '18px 40px',
     display: 'flex',
     alignItems: 'center',
     gap: '16px',
   },
   backBtn: {
-    background: 'none', border: 'none', color: '#64748B',
-    fontSize: '14px', cursor: 'pointer', padding: '0', fontWeight: '500',
+    background: 'none', border: 'none', color: 'var(--lf-text-muted)',
+    fontSize: '13px', cursor: 'pointer', padding: 0, fontWeight: '500',
+    textTransform: 'uppercase', letterSpacing: '0.06em', fontFamily: "'DM Sans', sans-serif",
   },
-  title: { fontSize: '20px', fontWeight: '700', color: '#1E293B', margin: '0' },
-  subtitle: { fontSize: '14px', color: '#64748B', margin: '4px 0 0' },
-  main: { maxWidth: '760px', margin: '0 auto', padding: '40px 24px 80px' },
+  title: { fontFamily: "'Playfair Display', Georgia, serif", fontSize: '18px', fontWeight: '600', color: 'var(--lf-navy)', margin: '0' },
+  subtitle: { fontSize: '14px', color: 'var(--lf-text-muted)', margin: '4px 0 0' },
+  main: { maxWidth: '760px', margin: '0 auto', padding: '48px 40px 80px' },
   card: {
-    background: '#ffffff', borderRadius: '12px',
-    border: '1px solid #E2E8F0', padding: '32px',
-    boxShadow: '0 1px 3px rgba(0,0,0,0.06)', marginBottom: '24px',
+    background: 'var(--lf-white)',
+    border: '1px solid var(--lf-border)', padding: '32px',
+    marginBottom: '24px',
   },
   row2: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' },
   fieldGroup: { marginBottom: '20px' },
   label: {
-    display: 'block', fontSize: '14px', fontWeight: '600',
-    color: '#374151', marginBottom: '6px',
+    display: 'block', fontSize: '13px', fontWeight: '500',
+    color: 'var(--lf-text)', marginBottom: '6px', fontFamily: "'DM Sans', sans-serif",
   },
-  help: { fontSize: '12px', color: '#94A3B8', marginBottom: '6px', display: 'block' },
+  help: { fontSize: '12px', color: 'var(--lf-text-muted)', marginBottom: '6px', display: 'block' },
   input: {
     width: '100%', padding: '10px 14px', fontSize: '14px',
-    borderRadius: '8px', border: '1px solid #CBD5E1', outline: 'none',
-    color: '#1E293B', background: '#ffffff', boxSizing: 'border-box', fontFamily: 'inherit',
+    border: '1px solid rgba(15,26,46,0.15)', outline: 'none',
+    color: 'var(--lf-text)', background: 'var(--lf-white)', boxSizing: 'border-box', fontFamily: "'DM Sans', sans-serif",
   },
   textarea: {
     width: '100%', padding: '12px 14px', fontSize: '14px',
-    borderRadius: '8px', border: '1px solid #CBD5E1', outline: 'none',
-    color: '#1E293B', background: '#ffffff', minHeight: '200px',
-    resize: 'vertical', boxSizing: 'border-box', fontFamily: 'inherit', lineHeight: '1.6',
+    border: '1px solid rgba(15,26,46,0.15)', outline: 'none',
+    color: 'var(--lf-text)', background: 'var(--lf-white)', minHeight: '200px',
+    resize: 'vertical', boxSizing: 'border-box', fontFamily: "'DM Sans', sans-serif", lineHeight: '1.6',
   },
   submitBtn: {
-    width: '100%', padding: '14px', background: '#4F46E5', color: '#ffffff',
-    border: 'none', borderRadius: '10px', fontSize: '15px', fontWeight: '600',
-    cursor: 'pointer', marginTop: '8px', fontFamily: 'inherit',
+    width: '100%', padding: '14px', background: 'var(--lf-navy)', color: 'var(--lf-cream)',
+    border: 'none', fontSize: '15px', fontWeight: '500',
+    cursor: 'pointer', marginTop: '8px', fontFamily: "'DM Sans', sans-serif",
   },
   sectionTitle: {
-    fontSize: '13px', fontWeight: '600', color: '#94A3B8',
-    textTransform: 'uppercase', letterSpacing: '0.07em', margin: '0 0 14px',
+    fontSize: '11px', fontWeight: '500', color: 'var(--lf-warm)',
+    textTransform: 'uppercase', letterSpacing: '0.12em', margin: '0 0 14px',
+    fontFamily: "'DM Sans', sans-serif",
   },
   tldrBox: {
-    background: '#EEF2FF', border: '1px solid #C7D2FE',
-    borderRadius: '10px', padding: '16px 20px', marginBottom: '24px',
+    background: 'var(--lf-white)', border: '1px solid var(--lf-border)',
+    borderLeft: '3px solid var(--lf-warm)',
+    padding: '16px 20px', marginBottom: '24px',
   },
-  tldrText: { fontSize: '15px', color: '#312E81', lineHeight: '1.7', margin: '0' },
+  tldrText: { fontSize: '15px', color: 'var(--lf-text)', lineHeight: '1.7', margin: '0' },
   decisionItem: {
     display: 'flex', alignItems: 'flex-start', gap: '10px',
-    padding: '10px 0', borderBottom: '1px solid #F1F5F9',
-    fontSize: '14px', color: '#1E293B', lineHeight: '1.5',
+    padding: '10px 0', borderBottom: '1px solid var(--lf-border)',
+    fontSize: '14px', color: 'var(--lf-text)', lineHeight: '1.5',
   },
   checkIcon: {
-    width: '20px', height: '20px', borderRadius: '50%',
-    background: '#DCFCE7', color: '#16A34A', fontSize: '11px',
+    width: '20px', height: '20px',
+    background: 'var(--lf-navy)', color: 'var(--lf-cream)', fontSize: '11px',
     fontWeight: '700', display: 'flex', alignItems: 'center',
     justifyContent: 'center', flexShrink: 0, marginTop: '1px',
   },
   actionRow: {
     display: 'grid', gridTemplateColumns: '1fr auto auto',
     gap: '12px', alignItems: 'start',
-    padding: '12px 0', borderBottom: '1px solid #F1F5F9',
+    padding: '12px 0', borderBottom: '1px solid var(--lf-border)',
   },
-  actionTask: { fontSize: '14px', fontWeight: '500', color: '#1E293B', margin: '0' },
-  actionMeta: { fontSize: '12px', color: '#64748B', margin: '4px 0 0' },
+  actionTask: { fontSize: '14px', fontWeight: '500', color: 'var(--lf-text)', margin: '0' },
+  actionMeta: { fontSize: '12px', color: 'var(--lf-text-muted)', margin: '4px 0 0' },
   ownerChip: {
-    fontSize: '12px', fontWeight: '600', background: '#EEF2FF',
-    color: '#4F46E5', padding: '3px 10px', borderRadius: '999px', whiteSpace: 'nowrap',
+    fontSize: '12px', fontWeight: '500', background: 'var(--lf-navy)',
+    color: 'var(--lf-cream)', padding: '3px 10px', whiteSpace: 'nowrap',
+    fontFamily: "'DM Sans', sans-serif",
   },
   deadlineChip: {
-    fontSize: '12px', fontWeight: '600', whiteSpace: 'nowrap',
-    padding: '3px 10px', borderRadius: '999px',
+    fontSize: '12px', fontWeight: '500', whiteSpace: 'nowrap',
+    padding: '3px 10px', fontFamily: "'DM Sans', sans-serif",
   },
   flagCard: {
-    borderRadius: '10px', padding: '14px 16px',
-    marginBottom: '10px', border: '1px solid',
+    padding: '14px 16px',
+    marginBottom: '10px', borderLeft: '3px solid',
   },
   flagHeader: { display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '6px' },
   flagTitle: { fontSize: '14px', fontWeight: '600', margin: '0', flex: 1 },
-  flagBadge: { fontSize: '11px', fontWeight: '700', padding: '2px 8px', borderRadius: '999px' },
-  flagContext: { fontSize: '13px', color: '#64748B', margin: '0', lineHeight: '1.5' },
+  flagBadge: { fontSize: '11px', fontWeight: '500', padding: '2px 8px', fontFamily: "'DM Sans', sans-serif" },
+  flagContext: { fontSize: '13px', color: 'var(--lf-text-muted)', margin: '0', lineHeight: '1.5' },
   followUpItem: {
     display: 'flex', gap: '10px', padding: '10px 0',
-    borderBottom: '1px solid #F1F5F9', fontSize: '14px', color: '#475569',
+    borderBottom: '1px solid var(--lf-border)', fontSize: '14px', color: 'var(--lf-text)',
   },
   saveBtn: {
-    padding: '12px 24px', background: '#16A34A', color: '#ffffff',
-    border: 'none', borderRadius: '8px', fontSize: '14px', fontWeight: '600',
-    cursor: 'pointer', fontFamily: 'inherit',
+    padding: '12px 24px', background: 'var(--lf-navy)', color: 'var(--lf-cream)',
+    border: 'none', fontSize: '14px', fontWeight: '500',
+    cursor: 'pointer', fontFamily: "'DM Sans', sans-serif",
   },
   savedBanner: {
-    background: '#DCFCE7', border: '1px solid #86EFAC', borderRadius: '8px',
-    padding: '12px 18px', fontSize: '14px', color: '#166534',
+    background: 'var(--lf-white)', border: '1px solid var(--lf-border)',
+    borderLeft: '3px solid var(--lf-warm)',
+    padding: '12px 18px', fontSize: '14px', color: 'var(--lf-text)',
     display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px',
   },
   spinner: {
-    width: '36px', height: '36px', border: '3px solid #E2E8F0',
-    borderTop: '3px solid #4F46E5', borderRadius: '50%',
+    width: '36px', height: '36px', border: '3px solid rgba(15,26,46,0.08)',
+    borderTop: '3px solid var(--lf-warm)', borderRadius: '50%',
     margin: '60px auto 16px', animation: 'spin 0.8s linear infinite',
   },
-  loadingText: { textAlign: 'center', color: '#64748B', fontSize: '15px' },
+  loadingText: { textAlign: 'center', color: 'var(--lf-text-muted)', fontSize: '15px' },
 };
 
 function DeadlineChip({ deadline }) {
@@ -128,8 +133,8 @@ function DeadlineChip({ deadline }) {
   return (
     <span style={{
       ...styles.deadlineChip,
-      background: isUrgent ? '#FEE2E2' : '#F1F5F9',
-      color: isUrgent ? '#DC2626' : '#64748B',
+      background: isUrgent ? '#FEE2E2' : 'rgba(15,26,46,0.06)',
+      color: isUrgent ? '#DC2626' : 'var(--lf-text-muted)',
     }}>
       {deadline}
     </span>
@@ -206,7 +211,7 @@ export default function MeetingNotesPage({ onBack }) {
               {form.attendees && `${form.attendees} · `}
               {new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
               {urgentCount > 0 && (
-                <span style={{ marginLeft: '10px', background: '#DC2626', color: '#fff', fontSize: '11px', fontWeight: '700', padding: '2px 8px', borderRadius: '999px' }}>
+                <span style={{ marginLeft: '10px', background: '#DC2626', color: '#fff', fontSize: '11px', fontWeight: '500', padding: '2px 8px', fontFamily: "'DM Sans', sans-serif" }}>
                   {urgentCount} urgent legal flag{urgentCount > 1 ? 's' : ''}
                 </span>
               )}
@@ -223,7 +228,7 @@ export default function MeetingNotesPage({ onBack }) {
 
           {/* TL;DR */}
           <div style={styles.tldrBox}>
-            <p style={{ ...styles.sectionTitle, color: '#4338CA', margin: '0 0 8px' }}>TL;DR</p>
+            <p style={{ ...styles.sectionTitle, margin: '0 0 8px' }}>TL;DR</p>
             <p style={styles.tldrText}>{result.tldr}</p>
           </div>
 
@@ -232,12 +237,12 @@ export default function MeetingNotesPage({ onBack }) {
             <div style={styles.card}>
               <p style={styles.sectionTitle}>
                 ⚠️ Legal Flags ({flagCount})
-                {urgentCount > 0 && <span style={{ color: '#DC2626', marginLeft: '6px' }}>— {urgentCount} urgent</span>}
+                {urgentCount > 0 && <span style={{ color: '#DC2626', marginLeft: '6px', fontFamily: "'DM Sans', sans-serif" }}>— {urgentCount} urgent</span>}
               </p>
               {result.legal_flags.map((flag, i) => {
                 const c = URGENCY_COLORS[flag.urgency] || URGENCY_COLORS.low;
                 return (
-                  <div key={i} style={{ ...styles.flagCard, background: c.bg, borderColor: c.border }}>
+                  <div key={i} style={{ ...styles.flagCard, background: c.bg, borderLeftColor: c.border }}>
                     <div style={styles.flagHeader}>
                       <p style={{ ...styles.flagTitle, color: c.text }}>{flag.flag}</p>
                       <span style={{ ...styles.flagBadge, background: c.badgeBg, color: c.badge }}>
@@ -256,7 +261,7 @@ export default function MeetingNotesPage({ onBack }) {
             <div style={styles.card}>
               <p style={styles.sectionTitle}>✅ Decisions Made ({result.decisions.length})</p>
               {result.decisions.map((d, i) => (
-                <div key={i} style={{ ...styles.decisionItem, borderBottom: i < result.decisions.length - 1 ? '1px solid #F1F5F9' : 'none' }}>
+                <div key={i} style={{ ...styles.decisionItem, borderBottom: i < result.decisions.length - 1 ? '1px solid var(--lf-border)' : 'none' }}>
                   <div style={styles.checkIcon}>✓</div>
                   <span>{d}</span>
                 </div>
@@ -269,7 +274,7 @@ export default function MeetingNotesPage({ onBack }) {
             <div style={styles.card}>
               <p style={styles.sectionTitle}>📋 Action Items ({result.action_items.length})</p>
               {result.action_items.map((item, i) => (
-                <div key={i} style={{ ...styles.actionRow, borderBottom: i < result.action_items.length - 1 ? '1px solid #F1F5F9' : 'none' }}>
+                <div key={i} style={{ ...styles.actionRow, borderBottom: i < result.action_items.length - 1 ? '1px solid var(--lf-border)' : 'none' }}>
                   <div>
                     <p style={styles.actionTask}>{item.task}</p>
                   </div>
@@ -285,8 +290,8 @@ export default function MeetingNotesPage({ onBack }) {
             <div style={styles.card}>
               <p style={styles.sectionTitle}>❓ Open Questions ({result.follow_ups.length})</p>
               {result.follow_ups.map((q, i) => (
-                <div key={i} style={{ ...styles.followUpItem, borderBottom: i < result.follow_ups.length - 1 ? '1px solid #F1F5F9' : 'none' }}>
-                  <span style={{ color: '#94A3B8', flexShrink: 0 }}>→</span>
+                <div key={i} style={{ ...styles.followUpItem, borderBottom: i < result.follow_ups.length - 1 ? '1px solid var(--lf-border)' : 'none' }}>
+                  <span style={{ color: 'var(--lf-text-muted)', flexShrink: 0 }}>→</span>
                   <span>{q}</span>
                 </div>
               ))}
@@ -301,7 +306,7 @@ export default function MeetingNotesPage({ onBack }) {
               </button>
             )}
             <button
-              style={{ ...styles.saveBtn, background: '#4F46E5' }}
+              style={{ ...styles.saveBtn }}
               onClick={() => {
                 const blob = new Blob([
                   `MEETING SUMMARY — ${form.title}\n`,
@@ -355,7 +360,7 @@ export default function MeetingNotesPage({ onBack }) {
               />
             </div>
             <div style={styles.fieldGroup}>
-              <label style={styles.label}>Attendees <span style={{ color: '#94A3B8', fontWeight: 400 }}>(optional)</span></label>
+              <label style={styles.label}>Attendees <span style={{ color: 'var(--lf-text-muted)', fontWeight: 400 }}>(optional)</span></label>
               <input
                 style={styles.input}
                 type="text"
@@ -378,18 +383,18 @@ export default function MeetingNotesPage({ onBack }) {
             />
           </div>
 
-          {error && <p style={{ color: '#DC2626', fontSize: '14px', marginBottom: '8px' }}>{error}</p>}
+          {error && <p style={{ color: '#DC2626', fontSize: '14px', marginBottom: '8px', borderLeft: '3px solid var(--lf-red-soft)', background: '#FEF2F2', padding: '10px 14px' }}>{error}</p>}
 
           <button
             type="submit"
-            style={{ ...styles.submitBtn, background: (!form.title.trim() || !form.notes.trim()) ? '#C7D2FE' : '#4F46E5', cursor: (!form.title.trim() || !form.notes.trim()) ? 'not-allowed' : 'pointer' }}
+            style={{ ...styles.submitBtn, background: (!form.title.trim() || !form.notes.trim()) ? 'rgba(15,26,46,0.25)' : 'var(--lf-navy)', cursor: (!form.title.trim() || !form.notes.trim()) ? 'not-allowed' : 'pointer' }}
             disabled={!form.title.trim() || !form.notes.trim()}
           >
             Analyze Meeting Notes →
           </button>
         </form>
 
-        <div style={{ background: '#FFFBEB', border: '1px solid #FDE68A', borderRadius: '10px', padding: '14px 18px', fontSize: '13px', color: '#92400E' }}>
+        <div style={{ borderLeft: '3px solid var(--lf-amber-soft)', background: '#FFFBEB', padding: '14px 18px', fontSize: '13px', color: '#92400E' }}>
           <strong>What Legal Foundry extracts:</strong> Key decisions · Action items with owners & deadlines · Legal flags (83(b), IP assignments, securities issues, contractor risks) · Open questions requiring follow-up
         </div>
       </main>

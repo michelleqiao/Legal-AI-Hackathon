@@ -79,14 +79,14 @@ const NDA_QUESTIONS = [
 const styles = {
   page: {
     minHeight: '100vh',
-    background: '#F8FAFC',
-    fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
-    color: '#1E293B',
+    background: 'var(--lf-cream)',
+    fontFamily: "'DM Sans', sans-serif",
+    color: 'var(--lf-text)',
   },
   header: {
-    background: '#ffffff',
-    borderBottom: '1px solid #E2E8F0',
-    padding: '20px 32px',
+    background: 'var(--lf-white)',
+    borderBottom: '1px solid var(--lf-border)',
+    padding: '18px 40px',
     display: 'flex',
     alignItems: 'center',
     gap: '16px',
@@ -94,99 +94,95 @@ const styles = {
   backBtn: {
     background: 'none',
     border: 'none',
-    color: '#64748B',
-    fontSize: '14px',
-    cursor: 'pointer',
-    padding: '0',
-    display: 'flex',
-    alignItems: 'center',
-    gap: '6px',
+    color: 'var(--lf-text-muted)',
+    fontSize: '13px',
     fontWeight: '500',
+    cursor: 'pointer',
+    padding: 0,
+    textTransform: 'uppercase',
+    letterSpacing: '0.06em',
+    fontFamily: "'DM Sans', sans-serif",
   },
-  title: { fontSize: '20px', fontWeight: '700', color: '#1E293B', margin: '0' },
-  subtitle: { fontSize: '14px', color: '#64748B', margin: '4px 0 0' },
-  main: { maxWidth: '720px', margin: '0 auto', padding: '40px 24px 80px' },
+  title: { fontFamily: "'Playfair Display', Georgia, serif", fontSize: '18px', fontWeight: '600', color: 'var(--lf-navy)', margin: '0' },
+  subtitle: { fontSize: '14px', color: 'var(--lf-text-muted)', margin: '4px 0 0' },
+  main: { maxWidth: '680px', margin: '0 auto', padding: '48px 40px 80px' },
   card: {
-    background: '#ffffff',
-    borderRadius: '12px',
-    border: '1px solid #E2E8F0',
+    background: 'var(--lf-white)',
+    border: '1px solid var(--lf-border)',
     padding: '32px',
-    boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
   },
   fieldGroup: { marginBottom: '24px' },
-  label: { display: 'block', fontSize: '14px', fontWeight: '600', color: '#374151', marginBottom: '6px' },
-  help: { fontSize: '13px', color: '#94A3B8', marginBottom: '8px', display: 'block' },
+  label: { display: 'block', fontSize: '13px', fontWeight: '500', color: 'var(--lf-text)', marginBottom: '6px', fontFamily: "'DM Sans', sans-serif" },
+  help: { fontSize: '13px', color: 'var(--lf-text-muted)', marginBottom: '8px', display: 'block' },
   input: {
     width: '100%',
     padding: '10px 14px',
     fontSize: '14px',
-    borderRadius: '8px',
-    border: '1px solid #CBD5E1',
+    border: '1px solid rgba(15,26,46,0.15)',
     outline: 'none',
-    color: '#1E293B',
-    background: '#ffffff',
+    color: 'var(--lf-text)',
+    background: 'var(--lf-white)',
     boxSizing: 'border-box',
+    fontFamily: "'DM Sans', sans-serif",
   },
   textarea: {
     width: '100%',
     padding: '10px 14px',
     fontSize: '14px',
-    borderRadius: '8px',
-    border: '1px solid #CBD5E1',
+    border: '1px solid rgba(15,26,46,0.15)',
     outline: 'none',
-    color: '#1E293B',
-    background: '#ffffff',
+    color: 'var(--lf-text)',
+    background: 'var(--lf-white)',
     minHeight: '90px',
     resize: 'vertical',
     boxSizing: 'border-box',
-    fontFamily: 'inherit',
+    fontFamily: "'DM Sans', sans-serif",
   },
   select: {
     width: '100%',
     padding: '10px 14px',
     fontSize: '14px',
-    borderRadius: '8px',
-    border: '1px solid #CBD5E1',
+    border: '1px solid rgba(15,26,46,0.15)',
     outline: 'none',
-    color: '#1E293B',
-    background: '#ffffff',
+    color: 'var(--lf-text)',
+    background: 'var(--lf-white)',
     boxSizing: 'border-box',
     cursor: 'pointer',
+    fontFamily: "'DM Sans', sans-serif",
   },
   submitBtn: {
     width: '100%',
     padding: '14px',
-    background: '#4F46E5',
-    color: '#ffffff',
+    background: 'var(--lf-navy)',
+    color: 'var(--lf-cream)',
     border: 'none',
-    borderRadius: '10px',
     fontSize: '15px',
-    fontWeight: '600',
+    fontWeight: '500',
     cursor: 'pointer',
     marginTop: '8px',
+    fontFamily: "'DM Sans', sans-serif",
   },
   notice: {
+    borderLeft: '3px solid var(--lf-amber-soft)',
     background: '#FFFBEB',
-    border: '1px solid #FDE68A',
-    borderRadius: '10px',
     padding: '14px 18px',
     fontSize: '13px',
     color: '#92400E',
     lineHeight: '1.6',
     marginBottom: '28px',
   },
-  divider: { margin: '32px 0', borderTop: '1px solid #E2E8F0' },
+  divider: { margin: '32px 0', borderTop: '1px solid var(--lf-border)' },
   typeTag: {
     display: 'inline-block',
-    background: '#EEF2FF',
-    color: '#4F46E5',
-    fontSize: '12px',
-    fontWeight: '700',
+    background: 'var(--lf-navy)',
+    color: 'var(--lf-cream)',
+    fontSize: '11px',
+    fontWeight: '500',
     padding: '3px 10px',
-    borderRadius: '999px',
     marginBottom: '16px',
     textTransform: 'uppercase',
-    letterSpacing: '0.06em',
+    letterSpacing: '0.12em',
+    fontFamily: "'DM Sans', sans-serif",
   },
 };
 
@@ -229,8 +225,9 @@ export default function NDAPage({ onBack }) {
             <h1 style={styles.title}>Your NDA is Ready</h1>
             <p style={styles.subtitle}>Review, edit, and download below</p>
           </div>
+
         </header>
-        <div style={{ maxWidth: '900px', margin: '40px auto', padding: '0 24px 80px' }}>
+        <div style={{ maxWidth: '900px', margin: '40px auto', padding: '0 40px 80px' }}>
           <div style={styles.notice}>
             ⚠️ <strong>Not legal advice.</strong> This NDA is AI-generated and provided for reference only. Have a qualified attorney review it before signing, especially for high-stakes relationships.
           </div>
@@ -242,9 +239,9 @@ export default function NDAPage({ onBack }) {
             content={result.draft || result.agreement || ''}
           />
           {result.summary && (
-            <div style={{ marginTop: '24px', background: '#F0FDF4', border: '1px solid #BBF7D0', borderRadius: '10px', padding: '20px 24px' }}>
-              <h3 style={{ fontSize: '15px', fontWeight: '700', color: '#166534', margin: '0 0 10px' }}>📋 Plain-English Summary</h3>
-              <p style={{ fontSize: '14px', color: '#166534', lineHeight: '1.7', margin: 0, whiteSpace: 'pre-wrap' }}>{result.summary}</p>
+            <div style={{ marginTop: '24px', background: 'var(--lf-white)', border: '1px solid var(--lf-border)', padding: '20px 24px' }}>
+              <h3 style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: '15px', fontWeight: '600', color: 'var(--lf-navy)', margin: '0 0 10px' }}>Plain-English Summary</h3>
+              <p style={{ fontSize: '14px', color: 'var(--lf-text)', lineHeight: '1.7', margin: 0, whiteSpace: 'pre-wrap' }}>{result.summary}</p>
             </div>
           )}
           <div style={{ marginTop: '32px' }}>
@@ -271,7 +268,7 @@ export default function NDAPage({ onBack }) {
             <div key={q.id} style={styles.fieldGroup}>
               <label style={styles.label}>
                 {q.label}
-                {q.required === false && <span style={{ color: '#94A3B8', fontWeight: 400 }}> (optional)</span>}
+                {q.required === false && <span style={{ color: 'var(--lf-text-muted)', fontWeight: 400 }}> (optional)</span>}
               </label>
               {q.help && <span style={styles.help}>{q.help}</span>}
 
@@ -311,7 +308,7 @@ export default function NDAPage({ onBack }) {
           ))}
 
           {error && (
-            <p style={{ color: '#DC2626', fontSize: '14px', marginBottom: '12px' }}>{error}</p>
+            <p style={{ color: '#DC2626', fontSize: '14px', marginBottom: '12px', borderLeft: '3px solid var(--lf-red-soft)', background: '#FEF2F2', padding: '10px 14px' }}>{error}</p>
           )}
 
           <button type="submit" style={styles.submitBtn} disabled={loading}>
