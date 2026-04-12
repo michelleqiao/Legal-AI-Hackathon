@@ -7,6 +7,7 @@ import FundraisingPage from './components/FundraisingPage.jsx';
 import NDAPage from './components/NDAPage.jsx';
 import DocumentRepositoryPage from './components/DocumentRepositoryPage.jsx';
 import MeetingNotesPage from './components/MeetingNotesPage.jsx';
+import BespokeServicesPage from './components/BespokeServicesPage.jsx';
 import FloatingChat from './components/FloatingChat.jsx';
 
 const PAGE_MODULES = {
@@ -18,6 +19,7 @@ const PAGE_MODULES = {
   fundraising: 'fundraising',
   'meeting-notes': 'general',
   documents: 'general',
+  bespoke: 'general',
   home: 'general',
 };
 
@@ -49,6 +51,8 @@ export default function App() {
       pageContent = <FundraisingPage onBack={goHome} />; break;
     case 'meeting-notes':
       pageContent = <MeetingNotesPage onBack={goHome} />; break;
+    case 'bespoke':
+      pageContent = <BespokeServicesPage onBack={goHome} />; break;
     case 'documents':
       pageContent = <DocumentRepositoryPage onBack={goHome} />; break;
     case 'home':

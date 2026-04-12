@@ -56,6 +56,11 @@ const IconDocuments = () => (
     <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
   </svg>
 );
+const IconBespoke = () => (
+  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+  </svg>
+);
 const IconAlert = () => (
   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <circle cx="12" cy="12" r="10"/>
@@ -73,6 +78,7 @@ const MODULES = [
   { Icon: IconMeetingNotes, title: 'Meeting Notes', desc: 'Record meetings, extract decisions and action items, and auto-flag legal risks.', page: 'meeting-notes' },
   { Icon: IconIP, title: 'Intellectual Property & Licenses', desc: 'Understand what to protect and how to secure your patents, trademarks, and IP.', page: 'patents' },
   { Icon: IconFundraising, title: 'Fundraising', desc: 'Generate term sheets, understand SAFEs, and know your terms before you sign.', page: 'fundraising' },
+  { Icon: IconBespoke, title: 'Bespoke Services', desc: 'Negotiation, litigation support, legal opinions, and tailored legal services for complex matters.', page: 'bespoke' },
 ];
 
 const MOCK_ALERTS = [
@@ -378,79 +384,41 @@ export default function HomePage({ onNavigate }) {
 
         <div style={{ maxWidth: '1100px', margin: '0 auto', position: 'relative' }}>
           {/* Wordmark */}
-          <p style={{
-            fontFamily: "'DM Sans', sans-serif",
-            fontSize: '11px',
-            fontWeight: '500',
-            color: 'rgba(197,165,114,0.7)',
-            textTransform: 'uppercase',
-            letterSpacing: '0.18em',
-            margin: '0 0 32px',
-          }}>
-            Legal Foundry
-          </p>
-
-          {/* Headline */}
           <h1 style={{
             fontFamily: "'Playfair Display', Georgia, serif",
-            fontSize: 'clamp(36px, 5vw, 56px)',
+            fontSize: 'clamp(48px, 7vw, 80px)',
             fontWeight: '600',
             color: 'var(--lf-white)',
-            margin: '0 0 20px',
-            lineHeight: 1.15,
-            maxWidth: '640px',
+            margin: '0 0 14px',
+            lineHeight: 1,
+            letterSpacing: '-0.5px',
           }}>
-            Your legal operating system.{' '}
-            <em style={{ fontStyle: 'italic', color: 'var(--lf-warm)' }}>No billable hours.</em>
+            Legal Foundry
           </h1>
 
           <p style={{
             fontFamily: "'DM Sans', sans-serif",
-            fontSize: '17px',
+            fontSize: '13px',
+            fontWeight: '400',
+            color: 'var(--lf-warm)',
+            textTransform: 'uppercase',
+            letterSpacing: '0.2em',
+            margin: '0 0 36px',
+          }}>
+            The Legal Stack You Deserve
+          </p>
+
+          <p style={{
+            fontFamily: "'DM Sans', sans-serif",
+            fontSize: '16px',
             fontWeight: '300',
-            color: 'rgba(247,245,240,0.65)',
-            margin: '0 0 40px',
-            lineHeight: 1.6,
-            maxWidth: '480px',
+            color: 'rgba(247,245,240,0.6)',
+            margin: 0,
+            lineHeight: 1.65,
+            maxWidth: '460px',
           }}>
             AI-powered incorporation, contracts, IP, and compliance — built for founders from day zero.
           </p>
-
-          <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
-            <button
-              onClick={() => onNavigate('incorporation')}
-              style={{
-                fontFamily: "'DM Sans', sans-serif",
-                background: 'var(--lf-warm)',
-                color: 'var(--lf-navy)',
-                border: 'none',
-                padding: '13px 28px',
-                fontSize: '13px',
-                fontWeight: '600',
-                textTransform: 'uppercase',
-                letterSpacing: '0.08em',
-                cursor: 'pointer',
-              }}
-            >
-              Get Started
-            </button>
-            <button
-              onClick={() => document.getElementById('lf-modules')?.scrollIntoView({ behavior: 'smooth' })}
-              style={{
-                fontFamily: "'DM Sans', sans-serif",
-                background: 'transparent',
-                color: 'rgba(247,245,240,0.7)',
-                border: '1px solid rgba(247,245,240,0.2)',
-                padding: '13px 28px',
-                fontSize: '13px',
-                fontWeight: '500',
-                letterSpacing: '0.04em',
-                cursor: 'pointer',
-              }}
-            >
-              Explore modules
-            </button>
-          </div>
         </div>
       </section>
 
