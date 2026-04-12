@@ -56,7 +56,7 @@ const NDA_QUESTIONS = [
   },
   {
     id: 'governing_state',
-    label: 'Which state's laws govern this agreement?',
+    label: "Which state's laws govern this agreement?",
     type: 'select',
     options: [
       { value: 'Delaware', label: 'Delaware' },
