@@ -422,53 +422,6 @@ export default function HomePage({ onNavigate }) {
         </div>
       </section>
 
-      {/* ── Nav strip ────────────────────────────────────────────── */}
-      <nav style={{
-        background: 'var(--lf-white)',
-        borderBottom: '1px solid var(--lf-border)',
-        padding: '0 48px',
-        overflowX: 'auto',
-      }}>
-        <div style={{
-          maxWidth: '1100px',
-          margin: '0 auto',
-          display: 'flex',
-          gap: '0',
-        }}>
-          {MODULES.map((m) => (
-            <button
-              key={m.page}
-              onClick={() => onNavigate(m.page)}
-              style={{
-                fontFamily: "'DM Sans', sans-serif",
-                background: 'none',
-                border: 'none',
-                borderBottom: '2px solid transparent',
-                padding: '16px 18px',
-                fontSize: '11px',
-                fontWeight: '500',
-                color: 'var(--lf-text-muted)',
-                textTransform: 'uppercase',
-                letterSpacing: '0.1em',
-                cursor: 'pointer',
-                whiteSpace: 'nowrap',
-                transition: 'color 0.15s ease, border-color 0.15s ease',
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.color = 'var(--lf-navy)';
-                e.currentTarget.style.borderBottomColor = 'var(--lf-warm)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.color = 'var(--lf-text-muted)';
-                e.currentTarget.style.borderBottomColor = 'transparent';
-              }}
-            >
-              {m.title}
-            </button>
-          ))}
-        </div>
-      </nav>
-
       {/* ── Module Grid ──────────────────────────────────────────── */}
       <section id="lf-modules" style={{ padding: '56px 48px' }}>
         <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
@@ -504,6 +457,8 @@ export default function HomePage({ onNavigate }) {
             {MODULES.map((mod) => (
               <ModuleCell key={mod.page} module={mod} onNavigate={onNavigate} />
             ))}
+            {/* Filler cell so the last row has no dark gap */}
+            <div style={{ background: 'var(--lf-cream)' }} />
           </div>
         </div>
       </section>
