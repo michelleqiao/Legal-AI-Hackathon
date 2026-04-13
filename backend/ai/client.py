@@ -272,32 +272,62 @@ def _get_demo_chat_response(module: str, message: str) -> str:
 
 # ── PUBLIC FUNCTIONS ──────────────────────────────────────────────────────────
 
-def get_incorporation_recommendation(answers: dict, decision_matrix: dict) -> dict:
+def get_incorporation_recommendation(answers: dict, decision_matrix: dict, vault_context: str = "") -> dict:
     if _is_demo_mode():
         return DEMO_RECOMMENDATION
+    vault_section = f"\n\n{vault_context}\n" if vault_context else ""
     user_message = (
         "Here are the founder's answers from the incorporation wizard:\n"
         f"{json.dumps(answers, indent=2)}\n\n"
         "Here is the decision matrix with the scoring rules:\n"
         f"{json.dumps(decision_matrix, indent=2)}\n\n"
+        f"{vault_section}"
         "Based on these answers and the decision matrix, recommend the best entity type and state."
     )
     raw = _call(INCORPORATION_SYSTEM_PROMPT, user_message)
     return _parse_json(raw, DEMO_RECOMMENDATION)
 
 
-def draft_agreement(type: str, answers: dict) -> dict:
+def draft_agreement(type: str, answers: dict, vault_context: str = "") -> dict:
     if _is_demo_mode():
         return DEMO_SERVICE_AGREEMENT if type == "service" else DEMO_EMPLOYMENT_AGREEMENT
+    vault_section = f"\n\n{vault_context}\n" if vault_context else ""
     user_message = (
         f"Agreement type: {type}\n\n"
         "Here are the user's answers:\n"
         f"{json.dumps(answers, indent=2)}\n\n"
+        f"{vault_section}"
         f"Draft a complete {type} agreement based on these answers."
+        + (" Use any company details from the vault context above to customize the agreement." if vault_context else "")
     )
     raw = _call(AGREEMENTS_SYSTEM_PROMPT, user_message)
     fallback = DEMO_SERVICE_AGREEMENT if type == "service" else DEMO_EMPLOYMENT_AGREEMENT
     return _parse_json(raw, fallback)
+
+
+def edit_section(section_text: str, instruction: str, document_context: str = "", vault_context: str = "") -> dict:
+    """Rewrite a selected section of a legal document based on an instruction."""
+    system = (
+        "You are Legal Foundry's document editor. You rewrite specific sections of legal documents "
+        "based on the user's instruction. Keep the legal tone professional. Never give legal advice. "
+        "Return ONLY valid JSON in this exact format: "
+        '{"rewritten": "the rewritten section text only", "summary": "one sentence explaining what changed"}'
+    )
+    vault_section = f"\n\n{vault_context}\n" if vault_context else ""
+    doc_section = f"\n\nFull document context:\n{document_context[:3000]}" if document_context else ""
+    user_message = (
+        f"Instruction: {instruction}\n\n"
+        f"Section to rewrite:\n{section_text}"
+        f"{vault_section}"
+        f"{doc_section}"
+    )
+    if _is_demo_mode():
+        return {
+            "rewritten": section_text,
+            "summary": "Demo mode — no changes made. Connect your Anthropic API key to enable AI editing.",
+        }
+    raw = _call(system, user_message)
+    return _parse_json(raw, {"rewritten": section_text, "summary": "Could not process edit."})
 
 
 def get_patent_guidance(description: str) -> dict:

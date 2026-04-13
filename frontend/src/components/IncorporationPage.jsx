@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { getRecommendation, exportToPdf, generateFilingDoc } from '../api.js';
+import { saveToVault, getVaultContext } from '../utils/vault.js';
 import ChatBox from './ChatBox.jsx';
 import DocumentEditor from './DocumentEditor.jsx';
 
@@ -365,6 +366,9 @@ export default function IncorporationPage({ onBack }) {
   const [filingLoading, setFilingLoading] = useState(false);
   const [filingError, setFilingError] = useState('');
   const [filingDoc, setFilingDoc] = useState('');
+  const [savedToVault, setSavedToVault] = useState(false);
+  const [showChecklist, setShowChecklist] = useState(false);
+  const [filingDocSaved, setFilingDocSaved] = useState(false);
 
   const question = QUESTIONS[step];
   const isLast = step === QUESTIONS.length - 1;
@@ -399,7 +403,8 @@ export default function IncorporationPage({ onBack }) {
     setPhase('loading');
     setError('');
     try {
-      const data = await getRecommendation(finalAnswers);
+      const vaultCtx = getVaultContext();
+      const data = await getRecommendation(finalAnswers, vaultCtx);
       setResult(data);
       setPhase('result');
     } catch (err) {
@@ -463,7 +468,8 @@ export default function IncorporationPage({ onBack }) {
       const entity = result
         ? result.entity || result.recommendation || result.entity_type || 'C-Corp'
         : 'C-Corp';
-      const data = await generateFilingDoc(entity, 'Delaware', filingValues);
+      const state = result ? (result.state || 'Delaware') : 'Delaware';
+      const data = await generateFilingDoc(entity, state, filingValues);
       const text = data.document || data.content || data.draft || JSON.stringify(data, null, 2);
       setFilingDoc(text);
       setPhase('filing-result');
@@ -472,6 +478,37 @@ export default function IncorporationPage({ onBack }) {
     } finally {
       setFilingLoading(false);
     }
+  }
+
+  function handleSaveIncorporationToVault() {
+    if (!result) return;
+    const entity = result.entity || 'Entity Recommendation';
+    const state = result.state || 'Delaware';
+    const content = [
+      `Recommended Entity: ${entity}`,
+      `State: ${state}`,
+      result.explanation ? `\nExplanation:\n${result.explanation}` : '',
+      (result.considerations || []).length > 0
+        ? '\nConsiderations:\n' + (result.considerations || []).map((c) => `• ${c}`).join('\n')
+        : '',
+      (result.critical_warnings || []).length > 0
+        ? '\nCritical Warnings:\n' + (result.critical_warnings || []).map((w) => `• ${w}`).join('\n')
+        : '',
+      (result.post_formation_checklist || []).length > 0
+        ? '\nPost-Formation Checklist:\n' + (result.post_formation_checklist || []).map((s, i) => `${i + 1}. ${s}`).join('\n')
+        : '',
+    ].join('');
+    saveToVault({
+      id: `incorporation-${Date.now()}`,
+      name: `Incorporation Recommendation — ${entity} (${state})`,
+      category: 'Incorporation',
+      icon: '⚖️',
+      content,
+      date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+      source: 'incorporation',
+      status: 'active',
+    });
+    setSavedToVault(true);
   }
 
   // Filing loading screen
@@ -519,12 +556,33 @@ export default function IncorporationPage({ onBack }) {
 
           <DocumentEditor content={filingDoc} title="Certificate of Incorporation" />
 
-          <div style={{ marginTop: '20px' }}>
+          <div style={{ marginTop: '20px', display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
             <button
               style={styles.secondaryButton}
               onClick={() => { setPhase('result'); setFilingDoc(''); }}
             >
               ← Back to recommendation
+            </button>
+            <button
+              style={{ ...styles.pdfButton, marginLeft: '12px', ...(filingDocSaved ? { borderColor: '#16A34A', color: '#16A34A' } : {}) }}
+              onClick={() => {
+                const entity = result ? (result.entity || 'C-Corp') : 'C-Corp';
+                const state = result ? (result.state || 'Delaware') : 'Delaware';
+                saveToVault({
+                  id: `filing-doc-${Date.now()}`,
+                  name: `Certificate of Incorporation — ${filingValues.company_name || entity}`,
+                  category: 'Incorporation',
+                  icon: '📜',
+                  content: filingDoc,
+                  date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+                  source: 'incorporation-filing',
+                  status: 'active',
+                });
+                setFilingDocSaved(true);
+              }}
+              disabled={filingDocSaved}
+            >
+              {filingDocSaved ? '✓ Saved to Vault' : '🗄️ Save to Vault'}
             </button>
           </div>
         </div>
@@ -643,7 +701,41 @@ export default function IncorporationPage({ onBack }) {
                 ))}
               </>
             )}
+
+            {(result.critical_warnings || []).length > 0 && (
+              <div style={{ marginTop: '20px', borderTop: '1px solid var(--lf-border)', paddingTop: '16px' }}>
+                <p style={{ ...styles.flagsHeader, color: '#DC2626' }}>⚠️ Critical warnings</p>
+                {(result.critical_warnings || []).map((w, i) => (
+                  <div key={i} style={{ ...styles.flagItem, marginBottom: '10px' }}>
+                    <span style={{ ...styles.flagDot, background: '#DC2626' }} />
+                    <span style={{ fontSize: '13px', lineHeight: '1.6' }}>{w}</span>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
+
+          {(result.post_formation_checklist || []).length > 0 && (
+            <div style={{ marginBottom: '16px' }}>
+              <button
+                style={{ ...styles.secondaryButton, marginTop: '0', display: 'flex', alignItems: 'center', gap: '6px' }}
+                onClick={() => setShowChecklist(!showChecklist)}
+              >
+                {showChecklist ? '▼' : '▶'} Post-formation checklist ({(result.post_formation_checklist || []).length} steps)
+              </button>
+              {showChecklist && (
+                <div style={{ marginTop: '12px', background: 'var(--lf-white)', border: '1px solid var(--lf-border)', padding: '16px 20px' }}>
+                  <p style={{ ...styles.flagsHeader, marginBottom: '12px' }}>Post-formation checklist</p>
+                  {(result.post_formation_checklist || []).map((step, i) => (
+                    <div key={i} style={{ display: 'flex', gap: '10px', alignItems: 'flex-start', marginBottom: '8px', fontSize: '14px', lineHeight: '1.5' }}>
+                      <span style={{ color: 'var(--lf-warm)', fontWeight: '600', flexShrink: 0, minWidth: '20px' }}>{i + 1}.</span>
+                      <span>{step}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
 
           {pdfError && <div style={styles.errorBanner}>{pdfError}</div>}
 
@@ -659,6 +751,16 @@ export default function IncorporationPage({ onBack }) {
               disabled={pdfLoading}
             >
               {pdfLoading ? 'Exporting...' : '⬇ Download PDF'}
+            </button>
+            <button
+              style={{
+                ...styles.pdfButton,
+                ...(savedToVault ? { borderColor: '#16A34A', color: '#16A34A' } : {}),
+              }}
+              onClick={handleSaveIncorporationToVault}
+              disabled={savedToVault}
+            >
+              {savedToVault ? '✓ Saved to Vault' : '🗄️ Save to Vault'}
             </button>
           </div>
 

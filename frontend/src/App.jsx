@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import HomePage from './components/HomePage.jsx';
 import IncorporationPage from './components/IncorporationPage.jsx';
 import AgreementsPage from './components/AgreementsPage.jsx';
@@ -9,6 +9,7 @@ import DocumentRepositoryPage from './components/DocumentRepositoryPage.jsx';
 import MeetingNotesPage from './components/MeetingNotesPage.jsx';
 import BespokeServicesPage from './components/BespokeServicesPage.jsx';
 import FloatingChat from './components/FloatingChat.jsx';
+import { seedDemoVault } from './utils/vault.js';
 
 const PAGE_MODULES = {
   incorporation: 'incorporation',
@@ -25,6 +26,11 @@ const PAGE_MODULES = {
 
 export default function App() {
   const [currentPage, setCurrentPage] = useState('home');
+
+  // Seed demo vault data on first load
+  useEffect(() => {
+    seedDemoVault();
+  }, []);
 
   function navigate(page) {
     setCurrentPage(page);

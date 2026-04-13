@@ -13,6 +13,7 @@ from typing import Any, Dict, List, Optional
 from ai import (
     get_incorporation_recommendation,
     draft_agreement,
+    edit_section,
     get_patent_guidance,
     generate_termsheet,
     generate_filing_doc,
@@ -57,6 +58,7 @@ def _load_decision_matrix() -> dict:
 
 class RecommendRequest(BaseModel):
     answers: Dict[str, Any] = Field(..., description="Founder's wizard answers")
+    vault_context: Optional[str] = Field(default="", description="Vault documents context string")
 
 
 class RecommendResponse(BaseModel):
@@ -64,11 +66,14 @@ class RecommendResponse(BaseModel):
     state: str
     explanation: str
     considerations: List[str]
+    critical_warnings: Optional[List[str]] = []
+    post_formation_checklist: Optional[List[str]] = []
 
 
 class DraftAgreementRequest(BaseModel):
     type: str = Field(..., description="'service' or 'employment'")
     answers: Dict[str, Any] = Field(..., description="User's answers for the agreement")
+    vault_context: Optional[str] = Field(default="", description="Vault documents context string")
 
 
 class DraftAgreementResponse(BaseModel):
@@ -186,6 +191,18 @@ class MeetingSummaryResponse(BaseModel):
     follow_ups: List[str]
 
 
+class EditSectionRequest(BaseModel):
+    section_text: str = Field(..., description="The section of text to rewrite")
+    instruction: str = Field(..., description="How to change the section")
+    document_context: Optional[str] = Field(default="", description="The full document for context")
+    vault_context: Optional[str] = Field(default="", description="Vault context")
+
+
+class EditSectionResponse(BaseModel):
+    rewritten: str
+    summary: str
+
+
 # ---------------------------------------------------------------------------
 # Routes
 # ---------------------------------------------------------------------------
@@ -214,12 +231,14 @@ def recommend(request: RecommendRequest):
     using the AI layer and the decision matrix.
     """
     decision_matrix = _load_decision_matrix()
-    result = get_incorporation_recommendation(request.answers, decision_matrix)
+    result = get_incorporation_recommendation(request.answers, decision_matrix, request.vault_context or "")
     return RecommendResponse(
         entity=result.get("entity", "C-Corp"),
         state=result.get("state", "Delaware"),
         explanation=result.get("explanation", ""),
         considerations=result.get("considerations", []),
+        critical_warnings=result.get("critical_warnings", []),
+        post_formation_checklist=result.get("post_formation_checklist", []),
     )
 
 
@@ -233,7 +252,7 @@ def draft_agreement_endpoint(request: DraftAgreementRequest):
             status_code=400,
             detail="'type' must be 'service' or 'employment'",
         )
-    result = draft_agreement(request.type, request.answers)
+    result = draft_agreement(request.type, request.answers, request.vault_context or "")
     return DraftAgreementResponse(
         draft=result.get("draft", ""),
         summary=result.get("summary", ""),
@@ -440,4 +459,21 @@ def summarize_meeting_endpoint(request: MeetingSummaryRequest):
         action_items=[ActionItem(**item) for item in result.get("action_items", [])],
         legal_flags=[LegalFlag(**flag) for flag in result.get("legal_flags", [])],
         follow_ups=result.get("follow_ups", []),
+    )
+
+
+@app.post("/edit-section", response_model=EditSectionResponse)
+def edit_section_endpoint(request: EditSectionRequest):
+    """
+    Rewrite a selected section of a document based on the user's instruction.
+    """
+    result = edit_section(
+        section_text=request.section_text,
+        instruction=request.instruction,
+        document_context=request.document_context or "",
+        vault_context=request.vault_context or "",
+    )
+    return EditSectionResponse(
+        rewritten=result.get("rewritten", request.section_text),
+        summary=result.get("summary", ""),
     )

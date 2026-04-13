@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
-import { draftAgreement, exportToPdf } from '../api.js';
+import React, { useState, useEffect } from 'react';
+import { draftAgreement, exportToPdf, editSection } from '../api.js';
+import { saveToVault, getVaultContext, findRelatedDocsByParties } from '../utils/vault.js';
 import ChatBox from './ChatBox.jsx';
 import DocumentEditor from './DocumentEditor.jsx';
 
@@ -259,7 +260,6 @@ const commonStyles = {
     fontFamily: "'DM Sans', sans-serif",
     marginTop: '16px',
   },
-  // Type selection cards
   typeSelectionWrap: {
     display: 'flex',
     gap: '16px',
@@ -304,11 +304,9 @@ const commonStyles = {
 export default function AgreementsPage({ type, onBack }) {
   const isService = type === 'service';
 
-  // Service perspective state — only relevant for service agreements
-  const [servicePerspective, setServicePerspective] = useState(null); // null | 'client' | 'provider'
+  const [servicePerspective, setServicePerspective] = useState(null);
   const [perspectiveChosen, setPerspectiveChosen] = useState(false);
 
-  // Build fields dynamically based on perspective
   const fields = isService
     ? SERVICE_FIELDS_BASE.map((f) => ({
         ...f,
@@ -334,11 +332,40 @@ export default function AgreementsPage({ type, onBack }) {
       (isService ? SERVICE_FIELDS_BASE : EMPLOYMENT_FIELDS).map((f) => [f.id, ''])
     )
   );
-  const [phase, setPhase] = useState('form'); // 'form' | 'loading' | 'result'
+  const [phase, setPhase] = useState('form');
   const [draft, setDraft] = useState('');
   const [error, setError] = useState('');
   const [showChat, setShowChat] = useState(false);
   const [pdfError, setPdfError] = useState('');
+  const [savedToVault, setSavedToVault] = useState(false);
+  const [vaultContextUsed, setVaultContextUsed] = useState(false);
+
+  // Vault NDA intelligence
+  const [ndaVaultMatch, setNdaVaultMatch] = useState(null); // matched vault doc or null
+  const [ndaHandling, setNdaHandling] = useState(null); // 'reference' | 'renew' | 'new' | null
+
+  useEffect(() => {
+    if (!isService) return;
+    const { client_name, provider_name, confidentiality } = formValues;
+    const hasNdaIntent = confidentiality && confidentiality.startsWith('Yes');
+    const hasParties = client_name?.trim().length > 1 && provider_name?.trim().length > 1;
+    if (hasNdaIntent && hasParties) {
+      const matches = findRelatedDocsByParties([client_name.trim(), provider_name.trim()], 'NDA');
+      setNdaVaultMatch(matches.length > 0 ? matches[0] : null);
+      if (matches.length === 0) setNdaHandling(null);
+    } else {
+      setNdaVaultMatch(null);
+      setNdaHandling(null);
+    }
+  }, [formValues.client_name, formValues.provider_name, formValues.confidentiality, isService]);
+
+  // Edit with AI state
+  const [editOpen, setEditOpen] = useState(false);
+  const [editSelected, setEditSelected] = useState('');
+  const [editInstruction, setEditInstruction] = useState('');
+  const [editLoading, setEditLoading] = useState(false);
+  const [editError, setEditError] = useState('');
+  const [editSummary, setEditSummary] = useState('');
 
   function handleChange(id, value) {
     setFormValues((prev) => ({ ...prev, [id]: value }));
@@ -357,8 +384,13 @@ export default function AgreementsPage({ type, onBack }) {
       const answers = {
         ...formValues,
         ...(isService && servicePerspective === 'provider' ? { perspective: 'provider' } : {}),
+        ...(ndaHandling === 'reference' ? { nda_instruction: 'Do NOT draft a new NDA or confidentiality clause. Instead, include a clause referencing the existing Mutual NDA between the parties (already in force, valid until December 31, 2027) and state that it remains in full force and effect.' } : {}),
+        ...(ndaHandling === 'renew' ? { nda_instruction: 'Use the existing Mutual NDA between the parties as a basis. Draft a renewed/updated confidentiality clause noting that it supersedes the prior NDA and extends confidentiality obligations through the term of this service agreement plus 3 years.' } : {}),
       };
-      const data = await draftAgreement(type, answers);
+      // Pull vault context to customise the draft
+      const vaultCtx = getVaultContext();
+      if (vaultCtx) setVaultContextUsed(true);
+      const data = await draftAgreement(type, answers, vaultCtx);
       const text = data.draft || data.agreement || data.content || data.document || JSON.stringify(data, null, 2);
       setDraft(text);
       setPhase('result');
@@ -368,12 +400,60 @@ export default function AgreementsPage({ type, onBack }) {
     }
   }
 
+  function handleSaveToVault() {
+    const category = isService ? 'Service' : 'Employment';
+    const icon = isService ? '📝' : '👥';
+    const partyName = isService
+      ? (formValues.client_name || formValues.provider_name || 'Unknown party')
+      : (formValues.employee_name || 'Unknown employee');
+    saveToVault({
+      id: `agreement-${Date.now()}`,
+      name: `${agreementTitle} — ${partyName}`,
+      category,
+      icon,
+      content: draft,
+      date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+      source: 'agreements',
+    });
+    setSavedToVault(true);
+  }
+
+  async function handleEditWithAI() {
+    if (!editSelected.trim() || !editInstruction.trim()) return;
+    setEditLoading(true);
+    setEditError('');
+    setEditSummary('');
+    try {
+      const vaultCtx = getVaultContext();
+      const result = await editSection(editSelected, editInstruction, draft, vaultCtx);
+      const rewritten = result.rewritten || result.rewritten_text || editSelected;
+      // Replace selected text in draft
+      setDraft((prev) => prev.replace(editSelected, rewritten));
+      setEditSummary(result.summary || 'Section updated.');
+      setEditSelected('');
+      setEditInstruction('');
+    } catch (err) {
+      setEditError('Edit failed. Please try again.');
+    } finally {
+      setEditLoading(false);
+    }
+  }
+
   function handleReset() {
     setPhase('form');
     setDraft('');
     setError('');
     setShowChat(false);
     setPdfError('');
+    setSavedToVault(false);
+    setVaultContextUsed(false);
+    setNdaVaultMatch(null);
+    setNdaHandling(null);
+    setEditOpen(false);
+    setEditSelected('');
+    setEditInstruction('');
+    setEditError('');
+    setEditSummary('');
     if (isService) {
       setServicePerspective(null);
       setPerspectiveChosen(false);
@@ -392,7 +472,9 @@ export default function AgreementsPage({ type, onBack }) {
         <div style={commonStyles.main}>
           <div style={commonStyles.loadingState}>
             <div style={commonStyles.spinner} />
-            <p style={commonStyles.loadingText}>Drafting your agreement...</p>
+            <p style={commonStyles.loadingText}>
+              Drafting your agreement{vaultContextUsed ? ' (using your Legal Vault)' : ''}...
+            </p>
           </div>
         </div>
       </div>
@@ -410,12 +492,78 @@ export default function AgreementsPage({ type, onBack }) {
         <div style={{ maxWidth: '900px', margin: '0 auto', padding: '48px 40px 80px' }}>
           <h1 style={commonStyles.pageTitle}>Your draft is ready</h1>
           <p style={{ color: 'var(--lf-text-muted)', fontSize: '15px', marginBottom: '24px' }}>
-            Review the agreement below. You can edit, comment, and download directly.
+            Review the agreement below. You can edit with AI, refine via chat, and save to your Legal Vault.
+            {vaultContextUsed && (
+              <span style={{ display: 'inline-block', marginLeft: '8px', fontSize: '12px', background: 'rgba(197,165,114,0.15)', color: 'var(--lf-warm)', padding: '2px 8px', fontWeight: '500' }}>
+                ✦ Customised from your Vault
+              </span>
+            )}
           </p>
 
           <p style={commonStyles.draftHeader}>{agreementTitle}</p>
 
           {pdfError && <div style={commonStyles.errorBanner}>{pdfError}</div>}
+
+          {/* Edit with AI panel */}
+          <div style={{ marginBottom: '16px', border: '1px solid var(--lf-border)', background: 'var(--lf-white)', padding: '16px 20px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: editOpen ? '14px' : '0' }}>
+              <p style={{ fontSize: '13px', fontWeight: '600', color: 'var(--lf-navy)', margin: '0', fontFamily: "'DM Sans', sans-serif" }}>
+                ✏️ Edit with AI
+              </p>
+              <button
+                style={{ ...commonStyles.pdfButton, fontSize: '12px', padding: '5px 12px' }}
+                onClick={() => { setEditOpen(!editOpen); setEditError(''); setEditSummary(''); }}
+              >
+                {editOpen ? 'Collapse' : 'Open editor'}
+              </button>
+            </div>
+
+            {editOpen && (
+              <div>
+                <p style={{ fontSize: '12px', color: 'var(--lf-text-muted)', marginBottom: '10px' }}>
+                  Paste a section from the document below, describe how to change it, and AI will rewrite it.
+                </p>
+                <div style={{ marginBottom: '10px' }}>
+                  <label style={{ ...commonStyles.label, marginBottom: '4px' }}>Section to edit</label>
+                  <textarea
+                    style={{ ...commonStyles.textarea, minHeight: '80px', fontSize: '13px' }}
+                    placeholder="Paste the paragraph or clause you want to change..."
+                    value={editSelected}
+                    onChange={(e) => setEditSelected(e.target.value)}
+                  />
+                </div>
+                <div style={{ marginBottom: '10px' }}>
+                  <label style={{ ...commonStyles.label, marginBottom: '4px' }}>Your instruction</label>
+                  <input
+                    type="text"
+                    style={{ ...commonStyles.input, fontSize: '13px' }}
+                    placeholder='e.g. "Make the payment terms net 30 instead of net 15" or "Add a late fee clause"'
+                    value={editInstruction}
+                    onChange={(e) => setEditInstruction(e.target.value)}
+                    onKeyDown={(e) => { if (e.key === 'Enter') handleEditWithAI(); }}
+                  />
+                </div>
+                {editError && <div style={{ ...commonStyles.errorBanner, marginBottom: '10px' }}>{editError}</div>}
+                {editSummary && (
+                  <div style={{ borderLeft: '3px solid #16A34A', background: '#F0FDF4', padding: '10px 14px', fontSize: '13px', color: '#15803D', marginBottom: '10px' }}>
+                    ✓ {editSummary}
+                  </div>
+                )}
+                <button
+                  style={{
+                    ...commonStyles.primaryButton,
+                    fontSize: '13px',
+                    padding: '9px 20px',
+                    ...((!editSelected.trim() || !editInstruction.trim() || editLoading) ? commonStyles.primaryButtonDisabled : {}),
+                  }}
+                  disabled={!editSelected.trim() || !editInstruction.trim() || editLoading}
+                  onClick={handleEditWithAI}
+                >
+                  {editLoading ? 'Rewriting...' : 'Rewrite section →'}
+                </button>
+              </div>
+            )}
+          </div>
 
           <DocumentEditor content={draft} title={agreementTitle} />
 
@@ -425,6 +573,16 @@ export default function AgreementsPage({ type, onBack }) {
                 Refine with AI chat
               </button>
             )}
+            <button
+              style={{
+                ...commonStyles.pdfButton,
+                ...(savedToVault ? { borderColor: '#16A34A', color: '#16A34A' } : {}),
+              }}
+              onClick={handleSaveToVault}
+              disabled={savedToVault}
+            >
+              {savedToVault ? '✓ Saved to Vault' : '🗄️ Save to Vault'}
+            </button>
           </div>
 
           {showChat && (
@@ -444,7 +602,7 @@ export default function AgreementsPage({ type, onBack }) {
     );
   }
 
-  // Service perspective selection (shown before form for service agreements)
+  // Service perspective selection
   if (isService && !perspectiveChosen) {
     return (
       <div style={commonStyles.page}>
@@ -459,7 +617,6 @@ export default function AgreementsPage({ type, onBack }) {
           </p>
 
           <div style={commonStyles.typeSelectionWrap}>
-            {/* Client card */}
             <button
               style={{
                 ...commonStyles.typeCard,
@@ -468,10 +625,7 @@ export default function AgreementsPage({ type, onBack }) {
               onClick={() => setServicePerspective('client')}
             >
               <span style={commonStyles.typeCardIcon}>🤝</span>
-              <p style={{
-                ...commonStyles.typeCardTitle,
-                color: servicePerspective === 'client' ? 'var(--lf-navy)' : 'var(--lf-navy)',
-              }}>
+              <p style={{ ...commonStyles.typeCardTitle, color: 'var(--lf-navy)' }}>
                 I need to hire someone
               </p>
               <p style={commonStyles.typeCardSubtitle}>
@@ -479,7 +633,6 @@ export default function AgreementsPage({ type, onBack }) {
               </p>
             </button>
 
-            {/* Provider card */}
             <button
               style={{
                 ...commonStyles.typeCard,
@@ -488,10 +641,7 @@ export default function AgreementsPage({ type, onBack }) {
               onClick={() => setServicePerspective('provider')}
             >
               <span style={commonStyles.typeCardIcon}>💼</span>
-              <p style={{
-                ...commonStyles.typeCardTitle,
-                color: servicePerspective === 'provider' ? 'var(--lf-navy)' : 'var(--lf-navy)',
-              }}>
+              <p style={{ ...commonStyles.typeCardTitle, color: 'var(--lf-navy)' }}>
                 I'm being hired for work
               </p>
               <p style={commonStyles.typeCardSubtitle}>
@@ -506,9 +656,7 @@ export default function AgreementsPage({ type, onBack }) {
               ...(servicePerspective ? {} : commonStyles.primaryButtonDisabled),
             }}
             disabled={!servicePerspective}
-            onClick={() => {
-              if (servicePerspective) setPerspectiveChosen(true);
-            }}
+            onClick={() => { if (servicePerspective) setPerspectiveChosen(true); }}
           >
             Continue →
           </button>
@@ -543,7 +691,6 @@ export default function AgreementsPage({ type, onBack }) {
 
         <form onSubmit={handleSubmit}>
           {isService ? (
-            // Service form: render with section headers
             (() => {
               const sectionMeta = {
                 parties: { label: '👤 Parties', desc: 'Who is involved in this agreement?' },
@@ -583,7 +730,6 @@ export default function AgreementsPage({ type, onBack }) {
               });
             })()
           ) : (
-            // Employment form: plain fields
             fields.map((field) => (
               <div key={field.id} style={commonStyles.formGroup}>
                 <label style={commonStyles.label} htmlFor={field.id}>
@@ -623,13 +769,97 @@ export default function AgreementsPage({ type, onBack }) {
             ))
           )}
 
+          {/* ── Vault NDA Intelligence Banner ─────────────────────────────── */}
+          {ndaVaultMatch && (
+            <div style={{
+              margin: '8px 0 24px',
+              border: '1.5px solid #C5A572',
+              background: 'rgba(197,165,114,0.07)',
+              padding: '16px 18px',
+            }}>
+              <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-start', marginBottom: '12px' }}>
+                <span style={{ fontSize: '20px', flexShrink: 0 }}>🗄️</span>
+                <div>
+                  <p style={{ margin: '0 0 4px', fontSize: '13px', fontWeight: '700', color: 'var(--lf-navy)', fontFamily: "'DM Sans', sans-serif" }}>
+                    Legal Vault Intelligence
+                  </p>
+                  <p style={{ margin: '0', fontSize: '13px', color: 'var(--lf-text)', lineHeight: '1.5' }}>
+                    Your vault already contains a{' '}
+                    <strong>{ndaVaultMatch.name}</strong>{ndaVaultMatch.expiresAt ? `, valid until ${ndaVaultMatch.expiresAt}` : ''}.
+                    How would you like to handle confidentiality in this agreement?
+                  </p>
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                {[
+                  {
+                    key: 'reference',
+                    icon: '📎',
+                    label: 'Reference the existing NDA',
+                    desc: 'This agreement will cite the existing NDA as still in force — no new confidentiality clause drafted.',
+                  },
+                  {
+                    key: 'renew',
+                    icon: '🔄',
+                    label: 'Renew & update the existing NDA',
+                    desc: 'Use the existing NDA as a basis and extend its terms through this agreement.',
+                  },
+                  {
+                    key: 'new',
+                    icon: '✏️',
+                    label: 'Draft a fresh NDA clause',
+                    desc: 'Ignore the existing NDA and draft new confidentiality terms from scratch.',
+                  },
+                ].map((opt) => (
+                  <button
+                    key={opt.key}
+                    type="button"
+                    onClick={() => setNdaHandling(opt.key)}
+                    style={{
+                      display: 'flex',
+                      gap: '12px',
+                      alignItems: 'flex-start',
+                      padding: '10px 14px',
+                      border: ndaHandling === opt.key ? '1.5px solid var(--lf-warm)' : '1px solid rgba(15,26,46,0.15)',
+                      background: ndaHandling === opt.key ? 'rgba(197,165,114,0.12)' : 'var(--lf-white)',
+                      cursor: 'pointer',
+                      textAlign: 'left',
+                      fontFamily: "'DM Sans', sans-serif",
+                      transition: 'all 0.15s',
+                    }}
+                  >
+                    <span style={{ fontSize: '16px', flexShrink: 0, marginTop: '1px' }}>{opt.icon}</span>
+                    <div>
+                      <p style={{ margin: '0 0 2px', fontSize: '13px', fontWeight: ndaHandling === opt.key ? '700' : '500', color: 'var(--lf-navy)' }}>
+                        {opt.label}
+                      </p>
+                      <p style={{ margin: '0', fontSize: '12px', color: 'var(--lf-text-muted)', lineHeight: '1.4' }}>
+                        {opt.desc}
+                      </p>
+                    </div>
+                    {ndaHandling === opt.key && (
+                      <span style={{ marginLeft: 'auto', color: 'var(--lf-warm)', fontSize: '16px', flexShrink: 0 }}>✓</span>
+                    )}
+                  </button>
+                ))}
+              </div>
+
+              {ndaVaultMatch && !ndaHandling && (
+                <p style={{ margin: '10px 0 0', fontSize: '12px', color: '#92400E', fontStyle: 'italic' }}>
+                  ↑ Please select an option above before generating your agreement.
+                </p>
+              )}
+            </div>
+          )}
+
           <button
             type="submit"
             style={{
               ...commonStyles.primaryButton,
-              ...(isFormValid() ? {} : commonStyles.primaryButtonDisabled),
+              ...(isFormValid() && (!ndaVaultMatch || ndaHandling) ? {} : commonStyles.primaryButtonDisabled),
             }}
-            disabled={!isFormValid()}
+            disabled={!isFormValid() || (ndaVaultMatch && !ndaHandling)}
           >
             Draft my agreement →
           </button>

@@ -1,69 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
+import { getAllVaultDocs, saveToVault, deleteVaultDoc } from '../utils/vault.js';
 
-const MOCK_DOCUMENTS = [
-  {
-    id: 1,
-    icon: '📄',
-    name: 'Articles of Incorporation',
-    category: 'Incorporation',
-    date: 'Mar 12, 2025',
-    status: 'active',
-    expiresAt: null,
-    size: '42 KB',
-  },
-  {
-    id: 2,
-    icon: '🤝',
-    name: 'NDA — Acme Corp',
-    category: 'NDA',
-    date: 'Jan 8, 2025',
-    status: 'expiring',
-    expiresAt: 'May 11, 2025',
-    size: '28 KB',
-  },
-  {
-    id: 3,
-    icon: '📝',
-    name: 'Contractor Agreement — Dev Team',
-    category: 'Service',
-    date: 'Feb 20, 2025',
-    status: 'active',
-    expiresAt: 'Feb 20, 2026',
-    size: '55 KB',
-  },
-  {
-    id: 4,
-    icon: '💡',
-    name: 'Provisional Patent Application',
-    category: 'IP',
-    date: 'Mar 28, 2025',
-    status: 'active',
-    expiresAt: 'Mar 28, 2026',
-    size: '118 KB',
-  },
-  {
-    id: 5,
-    icon: '👥',
-    name: 'Employment Agreement — Jane Smith',
-    category: 'Employment',
-    date: 'Apr 1, 2025',
-    status: 'active',
-    expiresAt: null,
-    size: '63 KB',
-  },
-  {
-    id: 6,
-    icon: '💰',
-    name: 'SAFE Note — Seed Round',
-    category: 'Fundraising',
-    date: 'Apr 5, 2025',
-    status: 'active',
-    expiresAt: null,
-    size: '34 KB',
-  },
-];
-
-const ALERTS = [
+const STATIC_ALERTS = [
   {
     id: 1,
     type: 'urgent',
@@ -288,6 +226,52 @@ const styles = {
     textDecoration: 'underline',
     fontFamily: "'DM Sans', sans-serif",
   },
+  // Modal
+  modalOverlay: {
+    position: 'fixed',
+    inset: 0,
+    background: 'rgba(15,26,46,0.55)',
+    zIndex: 1000,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: '24px',
+  },
+  modalBox: {
+    background: 'var(--lf-white)',
+    width: '100%',
+    maxWidth: '700px',
+    maxHeight: '80vh',
+    display: 'flex',
+    flexDirection: 'column',
+    border: '1px solid var(--lf-border)',
+  },
+  modalHeader: {
+    padding: '16px 20px',
+    borderBottom: '1px solid var(--lf-border)',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  modalTitle: { fontFamily: "'Playfair Display', Georgia, serif", fontSize: '16px', fontWeight: '600', color: 'var(--lf-navy)', margin: 0 },
+  modalBody: {
+    padding: '20px',
+    overflowY: 'auto',
+    flex: 1,
+    fontFamily: 'monospace',
+    fontSize: '13px',
+    lineHeight: '1.6',
+    color: 'var(--lf-text)',
+    whiteSpace: 'pre-wrap',
+    wordBreak: 'break-word',
+  },
+  modalFooter: {
+    padding: '12px 20px',
+    borderTop: '1px solid var(--lf-border)',
+    display: 'flex',
+    gap: '10px',
+    justifyContent: 'flex-end',
+  },
 };
 
 function AlertCard({ alert }) {
@@ -313,20 +297,24 @@ function AlertCard({ alert }) {
   );
 }
 
-function DocRow({ doc }) {
+function DocRow({ doc, onClick, onDelete }) {
   const [hovered, setHovered] = useState(false);
-  const sc = statusConfig[doc.status];
+  const sc = statusConfig[doc.status] || statusConfig.active;
   return (
     <div
       style={{ ...styles.docRow, background: hovered ? 'var(--lf-cream)' : 'var(--lf-white)' }}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
+      onClick={onClick}
     >
-      <span style={styles.docIcon}>{doc.icon}</span>
+      <span style={styles.docIcon}>{doc.icon || '📄'}</span>
       <div style={styles.docBody}>
         <p style={styles.docName}>{doc.name}</p>
         <p style={styles.docMeta}>
-          Added {doc.date}{doc.expiresAt ? ` · Expires ${doc.expiresAt}` : ''} · {doc.size}
+          {doc.date ? `Added ${doc.date}` : 'Recently added'}
+          {doc.expiresAt ? ` · Expires ${doc.expiresAt}` : ''}
+          {doc.size && doc.size !== '—' ? ` · ${doc.size}` : ''}
+          {doc.source ? ` · via ${doc.source}` : ''}
         </p>
       </div>
       <div style={styles.docRight}>
@@ -334,6 +322,15 @@ function DocRow({ doc }) {
           {sc.label}
         </span>
         <span style={styles.catTag}>{doc.category}</span>
+        {onDelete && (
+          <button
+            style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--lf-text-muted)', fontSize: '16px', padding: '0 2px', lineHeight: 1 }}
+            onClick={(e) => { e.stopPropagation(); onDelete(doc.id); }}
+            title="Remove from vault"
+          >
+            ×
+          </button>
+        )}
       </div>
     </div>
   );
@@ -341,16 +338,20 @@ function DocRow({ doc }) {
 
 export default function DocumentRepositoryPage({ onBack }) {
   const [activeFilter, setActiveFilter] = useState('All');
+  const [vaultDocs, setVaultDocs] = useState(() => getAllVaultDocs());
+  const [previewDoc, setPreviewDoc] = useState(null);
+  const [uploadError, setUploadError] = useState('');
+  const fileInputRef = React.useRef(null);
 
-  // Pull saved meeting notes from localStorage and merge with mock docs
+  // Pull saved meeting notes from localStorage
   const savedMeetings = React.useMemo(() => {
     try {
       return JSON.parse(localStorage.getItem('lf_meeting_notes') || '[]');
     } catch { return []; }
   }, []);
 
-  const allDocs = React.useMemo(() => {
-    const meetingDocs = savedMeetings.map((m, i) => ({
+  const meetingDocs = React.useMemo(() =>
+    savedMeetings.map((m, i) => ({
       id: `meeting-${m.id || i}`,
       icon: '🎙️',
       name: m.title,
@@ -359,23 +360,101 @@ export default function DocumentRepositoryPage({ onBack }) {
       status: 'active',
       expiresAt: null,
       size: '—',
-    }));
-    return [...meetingDocs, ...MOCK_DOCUMENTS];
-  }, [savedMeetings]);
+      source: 'meeting-notes',
+      content: m.summary || m.notes || '',
+    })), [savedMeetings]);
+
+  // Combine vault docs + meeting docs (vault first, then meetings)
+  const allDocs = React.useMemo(() => {
+    // Avoid duplicates: filter out vault docs that are meeting notes (since we show them from lf_meeting_notes)
+    const nonMeetingVaultDocs = vaultDocs.filter((d) => d.category !== 'Meeting Notes');
+    return [...nonMeetingVaultDocs, ...meetingDocs];
+  }, [vaultDocs, meetingDocs]);
 
   const filtered = activeFilter === 'All'
     ? allDocs
     : allDocs.filter((d) => d.category === activeFilter);
 
-  const urgentCount = ALERTS.filter((a) => a.type === 'urgent').length;
+  const urgentCount = STATIC_ALERTS.filter((a) => a.type === 'urgent').length;
+
+  function handleDelete(id) {
+    deleteVaultDoc(id);
+    setVaultDocs(getAllVaultDocs());
+  }
+
+  function handleUploadClick() {
+    setUploadError('');
+    fileInputRef.current?.click();
+  }
+
+  const handleFileChange = useCallback((e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploadError('');
+
+    const allowedTypes = ['text/plain', 'application/pdf', 'application/msword',
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+    const isText = file.type === 'text/plain' || file.name.endsWith('.txt') || file.name.endsWith('.md');
+
+    // Detect category from filename
+    const nameLower = file.name.toLowerCase();
+    let category = 'Service';
+    if (nameLower.includes('incorporat') || nameLower.includes('articles') || nameLower.includes('certificate')) category = 'Incorporation';
+    else if (nameLower.includes('nda') || nameLower.includes('confidential')) category = 'NDA';
+    else if (nameLower.includes('employ') || nameLower.includes('offer letter')) category = 'Employment';
+    else if (nameLower.includes('patent') || nameLower.includes('trademark') || nameLower.includes(' ip ')) category = 'IP';
+    else if (nameLower.includes('safe') || nameLower.includes('term sheet') || nameLower.includes('fund')) category = 'Fundraising';
+
+    const iconMap = { Incorporation: '⚖️', NDA: '🤝', Service: '📝', Employment: '👥', IP: '💡', Fundraising: '💰' };
+
+    if (isText) {
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        const content = ev.target.result;
+        const doc = {
+          id: `upload-${Date.now()}`,
+          name: file.name.replace(/\.[^.]+$/, ''),
+          category,
+          icon: iconMap[category] || '📄',
+          content,
+          date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+          size: `${(file.size / 1024).toFixed(0)} KB`,
+          status: 'active',
+          source: 'upload',
+        };
+        saveToVault(doc);
+        setVaultDocs(getAllVaultDocs());
+      };
+      reader.readAsText(file);
+    } else if (allowedTypes.includes(file.type)) {
+      // For non-text files (PDF, DOCX), store metadata only (content not extractable client-side)
+      const doc = {
+        id: `upload-${Date.now()}`,
+        name: file.name.replace(/\.[^.]+$/, ''),
+        category,
+        icon: iconMap[category] || '📄',
+        content: `[Binary file: ${file.name} — ${(file.size / 1024).toFixed(0)} KB. Content not available for AI context. For AI to use this document, paste its text content via a text file upload.]`,
+        date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+        size: `${(file.size / 1024).toFixed(0)} KB`,
+        status: 'active',
+        source: 'upload',
+      };
+      saveToVault(doc);
+      setVaultDocs(getAllVaultDocs());
+    } else {
+      setUploadError(`Unsupported file type: ${file.type || 'unknown'}. Upload .txt, .md, .pdf, or .docx files.`);
+    }
+    // Reset so same file can be re-uploaded
+    e.target.value = '';
+  }, []);
 
   return (
     <div style={styles.page}>
       <header style={styles.header}>
         <button style={styles.backBtn} onClick={onBack}>← Back</button>
         <div>
-          <h1 style={styles.title}>🗄️ Document Repository</h1>
-          <p style={styles.subtitle}>All your legal documents and compliance alerts in one place</p>
+          <h1 style={styles.title}>🗄️ Legal Vault</h1>
+          <p style={styles.subtitle}>Your company's legal brain — all documents and compliance alerts in one place</p>
         </div>
       </header>
 
@@ -383,6 +462,13 @@ export default function DocumentRepositoryPage({ onBack }) {
         {/* Left: Documents */}
         <div>
           <p style={styles.sectionTitle}>Your Documents ({allDocs.length})</p>
+
+          {uploadError && (
+            <div style={{ borderLeft: '3px solid #DC2626', background: '#FEF2F2', padding: '10px 14px', fontSize: '13px', color: '#DC2626', marginBottom: '12px' }}>
+              {uploadError}
+            </div>
+          )}
+
           <div style={styles.card}>
             <div style={styles.filterRow}>
               {CATEGORIES.map((cat) => (
@@ -397,15 +483,41 @@ export default function DocumentRepositoryPage({ onBack }) {
                   {cat}
                 </button>
               ))}
-              <button style={styles.uploadBtn}>+ Upload Document</button>
+              <button style={styles.uploadBtn} onClick={handleUploadClick}>
+                + Upload Document
+              </button>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept=".txt,.md,.pdf,.doc,.docx"
+                style={{ display: 'none' }}
+                onChange={handleFileChange}
+              />
             </div>
 
             {filtered.length === 0 ? (
-              <div style={styles.emptyState}>No documents in this category yet.</div>
+              <div style={styles.emptyState}>
+                {activeFilter === 'All'
+                  ? 'No documents saved yet. Generate documents in any module and save them to your Vault, or upload files directly.'
+                  : `No ${activeFilter} documents yet.`}
+              </div>
             ) : (
-              filtered.map((doc) => <DocRow key={doc.id} doc={doc} />)
+              filtered.map((doc) => (
+                <DocRow
+                  key={doc.id}
+                  doc={doc}
+                  onClick={() => setPreviewDoc(doc)}
+                  onDelete={doc.source !== 'meeting-notes' ? handleDelete : undefined}
+                />
+              ))
             )}
           </div>
+
+          {allDocs.length > 0 && (
+            <p style={{ fontSize: '12px', color: 'var(--lf-text-muted)', marginTop: '12px' }}>
+              ✦ Documents saved here are automatically used to customise your AI outputs across all modules.
+            </p>
+          )}
         </div>
 
         {/* Right: Alerts */}
@@ -427,11 +539,44 @@ export default function DocumentRepositoryPage({ onBack }) {
               </span>
             )}
           </p>
-          {ALERTS.map((alert) => (
+          {STATIC_ALERTS.map((alert) => (
             <AlertCard key={alert.id} alert={alert} />
           ))}
         </div>
       </main>
+
+      {/* Document Preview Modal */}
+      {previewDoc && (
+        <div style={styles.modalOverlay} onClick={() => setPreviewDoc(null)}>
+          <div style={styles.modalBox} onClick={(e) => e.stopPropagation()}>
+            <div style={styles.modalHeader}>
+              <h2 style={styles.modalTitle}>{previewDoc.icon} {previewDoc.name}</h2>
+              <button
+                style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '20px', color: 'var(--lf-text-muted)', lineHeight: 1 }}
+                onClick={() => setPreviewDoc(null)}
+              >
+                ×
+              </button>
+            </div>
+            <div style={styles.modalBody}>
+              {previewDoc.content
+                ? previewDoc.content
+                : 'No content available for preview.'}
+            </div>
+            <div style={styles.modalFooter}>
+              <span style={{ fontSize: '12px', color: 'var(--lf-text-muted)', marginRight: 'auto' }}>
+                {previewDoc.category} · {previewDoc.date}
+              </span>
+              <button
+                style={{ padding: '7px 16px', background: 'none', border: '1px solid var(--lf-border)', fontSize: '13px', cursor: 'pointer', fontFamily: "'DM Sans', sans-serif", color: 'var(--lf-text-muted)' }}
+                onClick={() => setPreviewDoc(null)}
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

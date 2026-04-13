@@ -13,12 +13,21 @@ async function post(path, body) {
   return response.json();
 }
 
-export function getRecommendation(answers) {
-  return post('/recommend', { answers });
+export function getRecommendation(answers, vaultContext = '') {
+  return post('/recommend', { answers, vault_context: vaultContext });
 }
 
-export function draftAgreement(type, answers) {
-  return post('/draft-agreement', { type, answers });
+export function draftAgreement(type, answers, vaultContext = '') {
+  return post('/draft-agreement', { type, answers, vault_context: vaultContext });
+}
+
+export function editSection(sectionText, instruction, documentContext = '', vaultContext = '') {
+  return post('/edit-section', {
+    section_text: sectionText,
+    instruction,
+    document_context: documentContext,
+    vault_context: vaultContext,
+  });
 }
 
 export function getPatentGuidance(description) {
