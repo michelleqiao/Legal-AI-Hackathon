@@ -428,8 +428,20 @@ export default function AgreementsPage({ type, onBack }) {
       const vaultCtx = getVaultContext();
       const result = await editSection(editSelected, editInstruction, draft, vaultCtx);
       const rewritten = result.rewritten || result.rewritten_text || editSelected;
-      // Replace selected text in draft
-      setDraft((prev) => prev.replace(editSelected, rewritten));
+      // Replace selected text in draft — try progressively looser matches
+      setDraft((prev) => {
+        // 1. Exact match
+        if (prev.includes(editSelected)) return prev.replace(editSelected, rewritten);
+        // 2. Trimmed match
+        const trimmed = editSelected.trim();
+        if (prev.includes(trimmed)) return prev.replace(trimmed, rewritten);
+        // 3. Whitespace-normalised regex match (handles copy-paste whitespace differences)
+        const escaped = trimmed.replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace(/\s+/g, '\\s+');
+        const regex = new RegExp(escaped, 'i');
+        if (regex.test(prev)) return prev.replace(regex, rewritten);
+        // 4. Fallback — append the rewritten section at the end with a marker
+        return prev + '\n\n--- AMENDED SECTION ---\n' + rewritten + '\n--- END AMENDMENT ---';
+      });
       setEditSummary(result.summary || 'Section updated.');
       setEditSelected('');
       setEditInstruction('');

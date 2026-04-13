@@ -294,8 +294,7 @@ def _expand_scope(raw: str) -> str:
     r = raw.strip()
 
     expansions = [
-        # UX / Design
-        (r'\bux\b', 'UX/UI design'),
+        # UX / Design — specific patterns FIRST, generic \bux\b last to avoid partial matches
         (r'\bux design\b',
          'UX/UI design services, encompassing user research and discovery, information architecture, '
          'wireframing, interactive prototyping, and the delivery of production-ready design assets and '
@@ -347,6 +346,10 @@ def _expand_scope(raw: str) -> str:
         (r'\bbranding\b',
          'branding services, including brand strategy, visual identity design (logo, colour palette, '
          'typography), brand guidelines documentation, and delivery of brand asset packages'),
+        # Generic UX fallback — must come AFTER \bux design\b and \bux/ui\b
+        (r'\bux\b',
+         'UX/UI design services, encompassing user research, wireframing, interactive prototyping, '
+         'and delivery of production-ready design assets'),
     ]
 
     expanded = r
@@ -391,8 +394,10 @@ def _format_payment(raw: str) -> str:
         except ValueError:
             return m.group(0)
 
-    # Replace bare numbers or dollar amounts
-    legalised = re.sub(r'\$?\d{1,3}(?:,\d{3})*(?:\.\d{2})?|\$?\d{4,}', _legalise_amount, r)
+    # Replace dollar amounts — match full number (digits + optional commas + optional cents)
+    # Pattern: optional $, then digits-with-optional-commas, then optional .XX
+    # Must be preceded by start/space/$ and followed by end/space/non-digit to avoid partial matches
+    legalised = re.sub(r'\$?\d[\d,]*(?:\.\d{2})?(?=\s|$|[^\d,.])', _legalise_amount, r)
 
     # If input was JUST a bare amount (no other context), add a completion clause
     bare_amount = re.fullmatch(r'\$?[\d,]+(?:\.\d{2})?', r.strip())
