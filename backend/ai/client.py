@@ -288,91 +288,282 @@ def get_incorporation_recommendation(answers: dict, decision_matrix: dict, vault
     return _parse_json(raw, DEMO_RECOMMENDATION)
 
 
+def _expand_scope(raw: str) -> str:
+    """Expand terse scope descriptions into professional service language."""
+    import re
+    r = raw.strip()
+
+    expansions = [
+        # UX / Design
+        (r'\bux\b', 'UX/UI design'),
+        (r'\bux design\b',
+         'UX/UI design services, encompassing user research and discovery, information architecture, '
+         'wireframing, interactive prototyping, and the delivery of production-ready design assets and '
+         'a comprehensive design system'),
+        (r'\bux/ui\b',
+         'UX/UI design services, encompassing user research and discovery, information architecture, '
+         'wireframing, interactive prototyping, and the delivery of production-ready design assets'),
+        (r'\bui design\b',
+         'UI design services, including visual design, component library creation, responsive layout '
+         'design, and the delivery of pixel-perfect, production-ready design files'),
+        (r'\bproduct design\b',
+         'product design services, including end-to-end user experience research, concept design, '
+         'high-fidelity prototyping, usability testing, and handoff-ready design specifications'),
+        # Development
+        (r'\bweb (dev|development)\b',
+         'web development services, including front-end and back-end development, database integration, '
+         'testing, performance optimisation, and deployment to a production environment'),
+        (r'\bfrontend\b|\bfront.end\b',
+         'front-end development services, including implementation of responsive interfaces, '
+         'cross-browser compatibility, accessibility compliance, and integration with back-end APIs'),
+        (r'\bbackend\b|\bback.end\b',
+         'back-end development services, including API design and implementation, database architecture, '
+         'server configuration, security hardening, and technical documentation'),
+        (r'\bmobile (app|development|dev)\b',
+         'mobile application development services, including UI implementation, API integration, '
+         'platform-specific optimisation (iOS and/or Android), testing, and App Store submission support'),
+        # Marketing / Content
+        (r'\bmarketing\b',
+         'marketing services, including market research and analysis, strategic campaign planning, '
+         'content creation, channel management, and monthly performance reporting'),
+        (r'\bcontent (writing|creation)\b',
+         'content creation services, including copywriting, editorial planning, SEO optimisation, '
+         'and delivery of publication-ready written materials'),
+        (r'\bsocial media\b',
+         'social media management services, including content planning, post creation, community '
+         'engagement, influencer coordination, and monthly analytics reporting'),
+        # Consulting / Strategy
+        (r'\bconsulting\b',
+         'consulting services, providing expert strategic advice, analysis of current operations, '
+         'identification of improvement opportunities, and delivery of actionable recommendations'),
+        (r'\bstrategy\b',
+         'strategic advisory services, including competitive landscape analysis, growth planning, '
+         'roadmap development, and stakeholder presentation materials'),
+        # Data / Analytics
+        (r'\bdata (analysis|analytics|science)\b',
+         'data analysis and analytics services, including data collection, cleaning, modelling, '
+         'visualisation, and delivery of executive-level insight reports'),
+        # Branding
+        (r'\bbranding\b',
+         'branding services, including brand strategy, visual identity design (logo, colour palette, '
+         'typography), brand guidelines documentation, and delivery of brand asset packages'),
+    ]
+
+    expanded = r
+    for pattern, replacement in expansions:
+        substituted = re.sub(pattern, replacement, expanded, flags=re.IGNORECASE)
+        if substituted != expanded:
+            expanded = substituted
+            break  # apply first matching expansion only
+
+    # If still unchanged and very short (< 60 chars), add a professional suffix
+    if expanded == r and len(r) < 60:
+        expanded = f'{r}, including all related planning, execution, and delivery activities as further described by the parties'
+
+    # Capitalise first letter
+    return expanded[0].upper() + expanded[1:] if expanded else r
+
+
+def _format_payment(raw: str) -> str:
+    """Convert terse payment input into proper legal compensation language."""
+    import re
+
+    r = raw.strip()
+
+    # Normalise common amount patterns: 5000 / $5000 / 5,000 / $5,000
+    def _legalise_amount(m):
+        digits = m.group(0).replace('$', '').replace(',', '').strip()
+        try:
+            n = int(float(digits))
+            # Format with commas
+            formatted = f'${n:,}'
+            # Words for round thousands
+            words_map = {
+                1000: 'One Thousand', 2000: 'Two Thousand', 2500: 'Two Thousand Five Hundred',
+                3000: 'Three Thousand', 4000: 'Four Thousand', 5000: 'Five Thousand',
+                6000: 'Six Thousand', 7000: 'Seven Thousand', 7500: 'Seven Thousand Five Hundred',
+                8000: 'Eight Thousand', 8500: 'Eight Thousand Five Hundred',
+                9000: 'Nine Thousand', 10000: 'Ten Thousand', 15000: 'Fifteen Thousand',
+                20000: 'Twenty Thousand', 25000: 'Twenty-Five Thousand', 50000: 'Fifty Thousand',
+            }
+            words = words_map.get(n, '')
+            return f'{formatted} (US Dollars{f", {words}" if words else ""})'
+        except ValueError:
+            return m.group(0)
+
+    # Replace bare numbers or dollar amounts
+    legalised = re.sub(r'\$?\d{1,3}(?:,\d{3})*(?:\.\d{2})?|\$?\d{4,}', _legalise_amount, r)
+
+    # If input was JUST a bare amount (no other context), add a completion clause
+    bare_amount = re.fullmatch(r'\$?[\d,]+(?:\.\d{2})?', r.strip())
+    if bare_amount:
+        return f'Client shall pay Provider {legalised} upon satisfactory completion of the Services described herein, payable within fifteen (15) business days of receipt of Provider\'s invoice.'
+
+    # Detect milestone/split payment patterns and add legalese if not already verbose
+    if re.search(r'upfront|upon signing|on signing', legalised, re.IGNORECASE) and len(legalised) < 120:
+        legalised += ' All invoices are due within fifteen (15) business days of receipt. Late payments shall accrue interest at 1.5% per month.'
+
+    # Detect "total" with split — make it a proper clause
+    if re.search(r'total', legalised, re.IGNORECASE) and len(legalised) < 200:
+        legalised = f'The total fee for the Services is {legalised}. Payment shall be made in accordance with the schedule set forth herein. Client agrees that timely payment is a material obligation under this Agreement.'
+
+    return legalised
+
+
+def _expand_ip(raw: str) -> str:
+    """Expand terse IP ownership into legal language."""
+    r = raw.strip().lower()
+    if 'client owns' in r or 'client shall own' in r or 'assigned to client' in r:
+        return (
+            'All work product, deliverables, inventions, developments, and materials created by Provider '
+            'in connection with the Services ("Work Product") shall be the sole and exclusive property of '
+            'Client upon receipt of full payment therefor. Provider hereby irrevocably assigns to Client '
+            'all rights, title, and interest in and to the Work Product, including all intellectual property '
+            'rights therein.'
+        )
+    elif 'provider retains' in r or 'provider owns' in r or 'license' in r:
+        return (
+            'Provider retains ownership of all Work Product and background intellectual property. '
+            'Upon receipt of full payment, Provider grants Client a perpetual, worldwide, non-exclusive, '
+            'royalty-free licence to use, reproduce, and display the Work Product for Client\'s internal '
+            'business purposes.'
+        )
+    return raw
+
+
+def _expand_client_obligations(raw: str) -> str:
+    """Expand terse client obligations into proper legal language."""
+    r = raw.strip()
+    if len(r) < 80:
+        return (
+            f'{r}. Client further agrees to: (a) designate a primary point of contact to coordinate '
+            f'with Provider; (b) provide timely written feedback within five (5) business days of each '
+            f'milestone submission; and (c) ensure Provider has access to all systems, assets, and '
+            f'personnel reasonably necessary to perform the Services.'
+        )
+    return r
+
+
 def _build_demo_service_agreement(answers: dict) -> dict:
-    """Construct a demo service agreement from actual form inputs."""
+    """Construct a demo service agreement with enriched, professional language from form inputs."""
     import datetime
     client    = answers.get('client_name', 'Client')
     provider  = answers.get('provider_name', 'Service Provider')
-    scope     = answers.get('provider_scope', 'professional services as described')
-    client_ob = answers.get('client_scope', 'provide necessary materials and timely feedback')
-    payment   = answers.get('payment_terms', 'as mutually agreed')
-    ip        = answers.get('ip_ownership', 'Client owns all deliverables upon final payment')
+    scope_raw = answers.get('provider_scope', 'professional services')
+    client_ob_raw = answers.get('client_scope', 'provide necessary materials and timely feedback')
+    payment_raw = answers.get('payment_terms', 'as mutually agreed')
+    ip_raw    = answers.get('ip_ownership', 'Client owns all deliverables upon final payment')
     conf      = answers.get('confidentiality', 'Yes — mutual NDA')
     start     = answers.get('start_date', '')
     end       = answers.get('end_date', '')
     nda_instr = answers.get('nda_instruction', '')
-    year      = datetime.datetime.now().year
+
+    # Enrich inputs
+    scope     = _expand_scope(scope_raw)
+    payment   = _format_payment(payment_raw)
+    ip        = _expand_ip(ip_raw)
+    client_ob = _expand_client_obligations(client_ob_raw)
 
     if nda_instr:
         conf_clause = nda_instr
     elif conf.startswith('Yes — mutual'):
         conf_clause = (
-            'Both parties agree to hold all information exchanged in connection with this Agreement '
-            'in strict confidence and not to disclose it to any third party without prior written consent. '
-            'This obligation survives termination of this Agreement for a period of 3 years.'
+            'Each party (as "Receiving Party") agrees to hold in strict confidence all non-public '
+            'information disclosed by the other party (the "Disclosing Party") in connection with this '
+            'Agreement ("Confidential Information"), and shall not disclose Confidential Information to '
+            'any third party without the Disclosing Party\'s prior written consent. Each party shall use '
+            'Confidential Information solely for the purposes of this Agreement and shall protect it with '
+            'at least the same degree of care used to protect its own confidential information, but in no '
+            'event less than reasonable care. This obligation survives termination of this Agreement for '
+            'a period of three (3) years.'
         )
     elif 'client to provider' in conf:
-        conf_clause = 'Client agrees to hold all Provider Confidential Information in strict confidence.'
+        conf_clause = (
+            'Client agrees to hold all Confidential Information of Provider in strict confidence, '
+            'use it solely for the purposes of this Agreement, and not disclose it to any third party '
+            'without Provider\'s prior written consent. This obligation survives for three (3) years '
+            'following termination of this Agreement.'
+        )
     elif 'provider to client' in conf:
-        conf_clause = 'Provider agrees to hold all Client Confidential Information in strict confidence.'
+        conf_clause = (
+            'Provider agrees to hold all Confidential Information of Client in strict confidence, '
+            'use it solely for the purposes of this Agreement, and not disclose it to any third party '
+            'without Client\'s prior written consent. This obligation survives for three (3) years '
+            'following termination of this Agreement.'
+        )
     else:
-        conf_clause = 'No confidentiality obligations apply under this Agreement.'
+        conf_clause = 'The parties acknowledge that no confidentiality obligations apply under this Agreement.'
 
     if start and end:
-        timeline = f'from {start} to {end}'
+        timeline = f'from {start} through and including {end}'
     elif start:
-        timeline = f'beginning {start}'
+        timeline = f'commencing on {start}'
     else:
-        timeline = 'as agreed by the parties'
+        timeline = 'commencing on the Effective Date and continuing until completion of the Services'
 
     draft = f"""SERVICE AGREEMENT
 
-This Service Agreement ("Agreement") is entered into as of the date last signed below ("Effective Date") between:
+This Service Agreement (this "Agreement") is entered into as of the date last signed below (the "Effective Date") by and between:
 
 CLIENT: {client} ("Client")
 SERVICE PROVIDER: {provider} ("Provider")
 
+WHEREAS, Client desires to engage Provider to perform certain services, and Provider desires to perform such services for Client, on the terms and conditions set forth herein.
+
+NOW, THEREFORE, in consideration of the mutual covenants and agreements contained herein, and for other good and valuable consideration, the receipt and sufficiency of which are hereby acknowledged, the parties agree as follows:
+
 1. SERVICES
-Provider agrees to perform the following services ("Services"):
+Provider shall perform the following services for Client (collectively, the "Services"):
 {scope}
 
+Provider shall perform the Services in a professional and workmanlike manner, consistent with industry standards, and shall devote such time and resources as are reasonably necessary to complete the Services in accordance with this Agreement.
+
 2. CLIENT OBLIGATIONS
-Client shall: {client_ob}
+{client_ob}
 
 3. COMPENSATION
 {payment}
 
 4. TERM
-This Agreement covers the period {timeline}, unless earlier terminated pursuant to Section 8.
+This Agreement shall be in effect {timeline}, unless earlier terminated in accordance with Section 8 hereof.
 
 5. INDEPENDENT CONTRACTOR
-Provider is an independent contractor, not an employee of Client. Provider is responsible for all taxes on compensation received under this Agreement.
+Provider is an independent contractor and not an employee, agent, partner, or joint venturer of Client. Provider shall have sole responsibility for the payment of all federal, state, and local taxes arising from Provider's receipt of compensation under this Agreement. Nothing in this Agreement shall be construed to create an employment relationship between the parties.
 
 6. INTELLECTUAL PROPERTY
-{ip}. Provider hereby assigns all rights, title, and interest in all deliverables to Client upon receipt of full payment.
+{ip}
 
 7. CONFIDENTIALITY
 {conf_clause}
 
 8. TERMINATION
-Either party may terminate this Agreement with 14 days written notice. Client may terminate immediately for cause (material breach, misconduct, or failure to perform).
+Either party may terminate this Agreement upon fourteen (14) days' prior written notice to the other party. Client may terminate this Agreement immediately, without notice or liability, upon Provider's material breach of this Agreement, gross misconduct, or material failure to perform the Services. Upon termination, Provider shall deliver to Client all completed and in-progress work product, and Client shall pay Provider for all Services satisfactorily performed through the date of termination.
 
 9. LIMITATION OF LIABILITY
-Provider's total liability under this Agreement shall not exceed the fees paid in the 3 months preceding the claim.
+IN NO EVENT SHALL EITHER PARTY BE LIABLE TO THE OTHER FOR ANY INDIRECT, INCIDENTAL, CONSEQUENTIAL, SPECIAL, OR EXEMPLARY DAMAGES ARISING OUT OF OR RELATED TO THIS AGREEMENT, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGES. PROVIDER'S AGGREGATE LIABILITY UNDER THIS AGREEMENT SHALL NOT EXCEED THE TOTAL FEES PAID BY CLIENT TO PROVIDER IN THE THREE (3) MONTHS IMMEDIATELY PRECEDING THE CLAIM.
 
-10. GOVERNING LAW
-This Agreement shall be governed by the laws of Delaware.
+10. REPRESENTATIONS AND WARRANTIES
+Each party represents and warrants that: (a) it has full power and authority to enter into this Agreement; (b) this Agreement constitutes a legally binding obligation; and (c) the execution and performance of this Agreement does not conflict with any other agreement to which it is a party.
 
-IN WITNESS WHEREOF, the parties have executed this Agreement as of the date below.
+11. GOVERNING LAW; DISPUTE RESOLUTION
+This Agreement shall be governed by and construed in accordance with the laws of the State of Delaware, without regard to its conflict of laws principles. Any dispute arising out of or relating to this Agreement shall first be submitted to non-binding mediation before either party may initiate litigation.
+
+12. ENTIRE AGREEMENT
+This Agreement constitutes the entire agreement between the parties with respect to the subject matter hereof and supersedes all prior and contemporaneous agreements, understandings, and communications, whether written or oral.
+
+IN WITNESS WHEREOF, the parties have executed this Agreement as of the Effective Date.
 
 CLIENT: ___________________________  Date: __________
-PROVIDER: _________________________  Date: __________"""
+{client}
+
+SERVICE PROVIDER: _________________  Date: __________
+{provider}"""
 
     summary = (
-        f"This agreement covers: {scope[:80]}{'...' if len(scope) > 80 else ''}. "
-        f"Payment: {payment}. "
-        f"IP ownership: {ip[:60]}{'...' if len(ip) > 60 else ''}. "
-        f"Confidentiality: {'Yes' if conf.startswith('Yes') else 'No'}."
+        f"This agreement covers {scope_raw[:60]}{'...' if len(scope_raw) > 60 else ''}. "
+        f"Payment: {payment_raw}. "
+        f"IP: {'Client owns all deliverables' if 'client' in ip_raw.lower() else 'Provider retains ownership with license'}. "
+        f"Confidentiality: {'Mutual NDA' if 'mutual' in conf.lower() else conf}."
     )
     return {"draft": draft, "summary": summary}
 
