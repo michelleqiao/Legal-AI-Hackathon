@@ -385,7 +385,8 @@ export default function AgreementsPage({ type, onBack }) {
         ...formValues,
         ...(isService && servicePerspective === 'provider' ? { perspective: 'provider' } : {}),
         ...(ndaHandling === 'reference' ? { nda_instruction: 'Do NOT draft a new NDA or confidentiality clause. Instead, include a clause referencing the existing Mutual NDA between the parties (already in force, valid until December 31, 2027) and state that it remains in full force and effect.' } : {}),
-        ...(ndaHandling === 'renew' ? { nda_instruction: 'Use the existing Mutual NDA between the parties as a basis. Draft a renewed/updated confidentiality clause noting that it supersedes the prior NDA and extends confidentiality obligations through the term of this service agreement plus 3 years.' } : {}),
+        ...(ndaHandling === 'renew' ? { nda_instruction: "Draft a formal termination notice for the existing Mutual NDA between the parties (dated January 15, 2025). Include a clause stating that both parties mutually agree the NDA is terminated as of this agreement's Effective Date, and specify which obligations (if any) survive termination, such as confidentiality duties for information already disclosed." } : {}),
+        ...(ndaHandling === 'new' ? { nda_instruction: "The existing Mutual NDA between the parties (dated January 15, 2025, valid until December 31, 2027) contains post-termination obligations. Include a clause in this agreement acknowledging those post-termination obligations remain in effect, specifically: the duty to return or destroy confidential materials, ongoing confidentiality for information already disclosed, and any other obligations that expressly survive termination of the original NDA." } : {}),
       };
       // Pull vault context to customise the draft
       const vaultCtx = getVaultContext();
@@ -801,15 +802,15 @@ export default function AgreementsPage({ type, onBack }) {
                   },
                   {
                     key: 'renew',
-                    icon: '🔄',
-                    label: 'Renew & update the existing NDA',
-                    desc: 'Use the existing NDA as a basis and extend its terms through this agreement.',
+                    icon: '📋',
+                    label: 'Draft a termination notice',
+                    desc: 'Formally terminate the existing NDA and document the termination within this agreement.',
                   },
                   {
                     key: 'new',
-                    icon: '✏️',
-                    label: 'Draft a fresh NDA clause',
-                    desc: 'Ignore the existing NDA and draft new confidentiality terms from scratch.',
+                    icon: '📄',
+                    label: 'Refer to the Post-Termination Obligations',
+                    desc: "Reference the existing NDA's post-termination obligations and carry them into this agreement.",
                   },
                 ].map((opt) => (
                   <button

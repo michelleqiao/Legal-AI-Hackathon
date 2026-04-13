@@ -467,13 +467,19 @@ def edit_section_endpoint(request: EditSectionRequest):
     """
     Rewrite a selected section of a document based on the user's instruction.
     """
-    result = edit_section(
-        section_text=request.section_text,
-        instruction=request.instruction,
-        document_context=request.document_context or "",
-        vault_context=request.vault_context or "",
-    )
-    return EditSectionResponse(
-        rewritten=result.get("rewritten", request.section_text),
-        summary=result.get("summary", ""),
-    )
+    try:
+        result = edit_section(
+            section_text=request.section_text,
+            instruction=request.instruction,
+            document_context=request.document_context or "",
+            vault_context=request.vault_context or "",
+        )
+        return EditSectionResponse(
+            rewritten=result.get("rewritten", request.section_text),
+            summary=result.get("summary", ""),
+        )
+    except Exception as e:
+        return EditSectionResponse(
+            rewritten=request.section_text,
+            summary=f"Edit could not be applied. Please try again.",
+        )

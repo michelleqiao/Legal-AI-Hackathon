@@ -288,9 +288,168 @@ def get_incorporation_recommendation(answers: dict, decision_matrix: dict, vault
     return _parse_json(raw, DEMO_RECOMMENDATION)
 
 
+def _build_demo_service_agreement(answers: dict) -> dict:
+    """Construct a demo service agreement from actual form inputs."""
+    import datetime
+    client    = answers.get('client_name', 'Client')
+    provider  = answers.get('provider_name', 'Service Provider')
+    scope     = answers.get('provider_scope', 'professional services as described')
+    client_ob = answers.get('client_scope', 'provide necessary materials and timely feedback')
+    payment   = answers.get('payment_terms', 'as mutually agreed')
+    ip        = answers.get('ip_ownership', 'Client owns all deliverables upon final payment')
+    conf      = answers.get('confidentiality', 'Yes — mutual NDA')
+    start     = answers.get('start_date', '')
+    end       = answers.get('end_date', '')
+    nda_instr = answers.get('nda_instruction', '')
+    year      = datetime.datetime.now().year
+
+    if nda_instr:
+        conf_clause = nda_instr
+    elif conf.startswith('Yes — mutual'):
+        conf_clause = (
+            'Both parties agree to hold all information exchanged in connection with this Agreement '
+            'in strict confidence and not to disclose it to any third party without prior written consent. '
+            'This obligation survives termination of this Agreement for a period of 3 years.'
+        )
+    elif 'client to provider' in conf:
+        conf_clause = 'Client agrees to hold all Provider Confidential Information in strict confidence.'
+    elif 'provider to client' in conf:
+        conf_clause = 'Provider agrees to hold all Client Confidential Information in strict confidence.'
+    else:
+        conf_clause = 'No confidentiality obligations apply under this Agreement.'
+
+    if start and end:
+        timeline = f'from {start} to {end}'
+    elif start:
+        timeline = f'beginning {start}'
+    else:
+        timeline = 'as agreed by the parties'
+
+    draft = f"""SERVICE AGREEMENT
+
+This Service Agreement ("Agreement") is entered into as of the date last signed below ("Effective Date") between:
+
+CLIENT: {client} ("Client")
+SERVICE PROVIDER: {provider} ("Provider")
+
+1. SERVICES
+Provider agrees to perform the following services ("Services"):
+{scope}
+
+2. CLIENT OBLIGATIONS
+Client shall: {client_ob}
+
+3. COMPENSATION
+{payment}
+
+4. TERM
+This Agreement covers the period {timeline}, unless earlier terminated pursuant to Section 8.
+
+5. INDEPENDENT CONTRACTOR
+Provider is an independent contractor, not an employee of Client. Provider is responsible for all taxes on compensation received under this Agreement.
+
+6. INTELLECTUAL PROPERTY
+{ip}. Provider hereby assigns all rights, title, and interest in all deliverables to Client upon receipt of full payment.
+
+7. CONFIDENTIALITY
+{conf_clause}
+
+8. TERMINATION
+Either party may terminate this Agreement with 14 days written notice. Client may terminate immediately for cause (material breach, misconduct, or failure to perform).
+
+9. LIMITATION OF LIABILITY
+Provider's total liability under this Agreement shall not exceed the fees paid in the 3 months preceding the claim.
+
+10. GOVERNING LAW
+This Agreement shall be governed by the laws of Delaware.
+
+IN WITNESS WHEREOF, the parties have executed this Agreement as of the date below.
+
+CLIENT: ___________________________  Date: __________
+PROVIDER: _________________________  Date: __________"""
+
+    summary = (
+        f"This agreement covers: {scope[:80]}{'...' if len(scope) > 80 else ''}. "
+        f"Payment: {payment}. "
+        f"IP ownership: {ip[:60]}{'...' if len(ip) > 60 else ''}. "
+        f"Confidentiality: {'Yes' if conf.startswith('Yes') else 'No'}."
+    )
+    return {"draft": draft, "summary": summary}
+
+
+def _build_demo_employment_agreement(answers: dict) -> dict:
+    """Construct a demo employment agreement from actual form inputs."""
+    employee = answers.get('employee_name', 'Employee')
+    company  = answers.get('company_name', 'Company')
+    role     = answers.get('role_title', 'Employee')
+    salary   = answers.get('salary', 'as agreed')
+    start    = answers.get('start_date', 'as agreed')
+    equity   = answers.get('equity', 'None')
+    non_comp = answers.get('non_compete', 'Non-solicitation only (no full non-compete)')
+    ip_asgn  = answers.get('ip_assignment', 'Yes — all work-related IP assigned to company')
+
+    non_comp_clause = (
+        'Employee may not solicit Company employees or clients for 12 months after termination.'
+        if 'solicitation' in non_comp.lower() or non_comp.lower() == 'yes'
+        else 'No non-compete or non-solicitation obligations apply.'
+    )
+
+    ip_clause = (
+        'All inventions, code, and work product created by Employee during employment — including work '
+        'related to Company\'s business done outside working hours — belong to the Company.'
+        if 'assigned to company' in ip_asgn.lower()
+        else 'Employee retains pre-existing personal projects listed in an attached Exhibit.'
+    )
+
+    equity_clause = (
+        f'Subject to Board approval, Employee will receive equity as follows: {equity}.'
+        if equity and equity.lower() != 'none'
+        else 'No equity is offered at this time.'
+    )
+
+    draft = f"""EMPLOYMENT AGREEMENT
+
+This Employment Agreement ("Agreement") is entered into between {company} ("Company") and {employee} ("Employee").
+
+1. POSITION & START DATE
+Employee is hired as {role}. Start date: {start}.
+
+2. COMPENSATION
+Base salary: {salary}, paid bi-weekly. Employee may be eligible for an annual performance bonus at Company's discretion.
+
+3. EQUITY
+{equity_clause}
+
+4. BENEFITS
+Employee is entitled to: health insurance (Company pays 80%), 15 days PTO, standard public holidays.
+
+5. INTELLECTUAL PROPERTY ASSIGNMENT
+{ip_clause}
+
+6. NON-SOLICITATION
+{non_comp_clause}
+
+7. AT-WILL EMPLOYMENT
+Employment is at-will. Either party may terminate at any time with 2 weeks notice (or immediate termination for cause).
+
+8. GOVERNING LAW
+This Agreement is governed by the laws of Delaware.
+
+COMPANY: ___________________________  Date: __________
+EMPLOYEE: __________________________  Date: __________"""
+
+    summary = (
+        f"{employee} joins as {role} at {salary}. "
+        f"Equity: {equity}. "
+        f"Employment is at-will — either side can end it with 2 weeks notice. "
+        f"IP assignment: {'Yes' if 'assigned to company' in ip_asgn.lower() else 'With carve-outs'}."
+    )
+    return {"draft": draft, "summary": summary}
+
+
 def draft_agreement(type: str, answers: dict, vault_context: str = "") -> dict:
     if _is_demo_mode():
-        return DEMO_SERVICE_AGREEMENT if type == "service" else DEMO_EMPLOYMENT_AGREEMENT
+        return _build_demo_service_agreement(answers) if type == "service" else _build_demo_employment_agreement(answers)
     vault_section = f"\n\n{vault_context}\n" if vault_context else ""
     user_message = (
         f"Agreement type: {type}\n\n"
@@ -322,10 +481,22 @@ def edit_section(section_text: str, instruction: str, document_context: str = ""
         f"{doc_section}"
     )
     if _is_demo_mode():
-        return {
-            "rewritten": section_text,
-            "summary": "Demo mode — no changes made. Connect your Anthropic API key to enable AI editing.",
-        }
+        import re as _re
+        add_match = _re.match(r'^add\s+(?:that\s+)?(.+)$', instruction, _re.IGNORECASE)
+        change_match = _re.match(r'^change\s+(.+?)\s+to\s+(.+)$', instruction, _re.IGNORECASE)
+        if add_match:
+            addition = add_match.group(1).strip().rstrip('.')
+            rewritten = section_text.rstrip() + f' Additionally, {addition}.'
+            summary = f'Added: "{addition}".'
+        elif change_match:
+            old_val = change_match.group(1).strip()
+            new_val = change_match.group(2).strip()
+            rewritten = _re.sub(_re.escape(old_val), new_val, section_text, flags=_re.IGNORECASE, count=1)
+            summary = f'Changed "{old_val}" to "{new_val}".'
+        else:
+            rewritten = section_text.rstrip() + f'\n[Amended per instruction: {instruction}]'
+            summary = f'Applied: {instruction}'
+        return {"rewritten": rewritten, "summary": summary}
     raw = _call(system, user_message)
     return _parse_json(raw, {"rewritten": section_text, "summary": "Could not process edit."})
 
